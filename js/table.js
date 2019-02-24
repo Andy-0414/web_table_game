@@ -2,13 +2,19 @@ var table;
 
 (() => {
     class Card {
-        constructor(option) {
+        constructor(x,y,option) {
             this.option = option || {
                 width : 200,
                 height : 300,
+                style : {
+                    cursor: "grab",
+                    boxShadow: "0px 0px 5px 1px #00000055"
+                },
                 transform : {
                     translateY : 0,
                     scale : 1,
+                    rotateX : 0,
+                    rotateY : 0
                 }
             }
             this.card = document.createElement('div')
@@ -18,9 +24,13 @@ var table;
 
             this.card.style.width = this.option.width + "px"
             this.card.style.height = this.option.height + "px"
+
+            this.card.addEventListener('contextmenu',()=>{
+                this.reverse()
+            })
             
-            this.x = 0
-            this.y = 0
+            this.x = x || 0
+            this.y = y || 0
 
             this.zIndex = 0;
 
@@ -30,28 +40,41 @@ var table;
             this.card.style.left = this.x
             this.card.style.top = this.y
 
+            this.setStyle()
+            this.setTransform()
+
             this.detach()
         }
         attach(){
-            this.card.style.boxShadow = "0px 10px 10px 1px #00000055"
+            this.option.style.boxShadow = "0px 10px 10px 1px #00000055"
+            this.option.style.cursor = "grabbing"
 
             this.zIndex = 10;
             this.card.style.zIndex = this.zIndex
             this.option.transform.translateY = this.zIndex
+            this.setStyle()
             this.setTransform()
         }
         detach(){
-            this.card.style.boxShadow = "0px 0px 5px 1px #00000055"
+            this.option.style.boxShadow = "0px 0px 5px 1px #00000055"
+            this.option.style.cursor = "grab"
 
             this.zIndex = 0;
             this.card.style.zIndex = this.zIndex
             this.option.transform.translateY = this.zIndex
+            this.setStyle()
             this.setTransform()
+        }
+        setStyle(){
+            this.card.style.boxShadow = this.option.style.boxShadow
+            this.card.style.cursor = this.option.style.cursor
         }
         setTransform(){
             this.card.style.transform = `
             translateY(-${this.option.transform.translateY}px) 
-            scale(${this.option.transform.scale})`
+            scale(${this.option.transform.scale}) 
+            rotateX(${this.option.transform.rotateX}deg) 
+            rotateY(${this.option.transform.rotateY}deg) `
         }
         setPosition() {
             this.card.style.left = (this.x - this.centerX) + "px"
@@ -64,7 +87,8 @@ var table;
         }
 
         reverse(){
-            
+            this.option.transform.rotateY += 180
+            this.setTransform()            
         }
 
         getCard() {
@@ -90,7 +114,7 @@ var table;
                 } 
             }
             function up(e) {
-                this.card.controller.detach()
+                if (this.card) this.card.controller.detach()
                 this.card = null;
             }
             function move(e) {
@@ -117,6 +141,10 @@ var table;
     table = new Table(document.getElementById('table'));
 })()
 table.init();
+table.createCard()
+table.createCard()
+table.createCard()
+table.createCard()
 table.createCard()
 table.createCard()
 table.render()
