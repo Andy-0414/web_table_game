@@ -4,6 +4,7 @@ var table;
     class Card {
         constructor(option,x,y) {
             option = option || {style:{}}
+            option.style = option.style || {}
             this.option = {
                 width: option.width || 200,
                 height: option.height || 300,
@@ -201,4 +202,34 @@ table.createCard({
         borderRadius: 5
     }
 },500,200)
+table.createCard({
+    width: 100,
+    height: 100,
+    front: {
+        image: "./assets/coin.png"
+    },
+    back: {
+        image: "./assets/coin.png"
+    },
+}, 600, 600)
+table.createCard({
+    width: 100,
+    height: 100,
+    front: {
+        image: "./assets/coin.png"
+    },
+    back: {
+        image: "./assets/coin.png"
+    },
+}, 800, 600)
+table.createCard({
+    width: 286,
+    height: 397,
+    front: {
+        image: "./assets/hearth.png"
+    },
+    back: {
+        image: "./assets/hearth2.png"
+    },
+}, 1000, 600)
 table.render()
