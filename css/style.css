@@ -1,0 +1,26 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+#table{
+    position: relative;
+
+    width: 1000px;
+    height: 800px;
+
+    background-color: rgb(25, 124, 0);
+}
+
+.card{
+    cursor: pointer;
+
+    position: absolute;
+
+    width: 100px;
+    height: 100px;
+    background-color: white;
+
+    transition: cubic-bezier(0.075, 0.82, 0.165, 1) 0.5s;
+}
