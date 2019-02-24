@@ -11,17 +11,19 @@
     height: 800px;
 
     background-color: rgb(25, 124, 0);
+
+    overflow: hidden;
 }
 
 .card{
-    cursor: grabbing;
+    cursor: grab;
 
     position: absolute;
 
     width: 100px;
     height: 100px;
-    background-color: white;
 
-    transition: cubic-bezier(0.075, 0.82, 0.165, 1) 1s;
+    transition: cubic-bezier(0.075, 0.82, 0.165, 1) 0.5s;
     transform-origin: center;
+    background-repeat: no-repeat;
 }
