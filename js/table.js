@@ -51,6 +51,7 @@ var table;
             this.card.style.left = this.x
             this.card.style.top = this.y
 
+            this.setPosition()
             this.setStyle()
             this.setTransform()
 
@@ -60,9 +61,7 @@ var table;
             this.option.style.boxShadow = "drop-shadow(0px 20px 1px #00000055)"
             this.option.style.cursor = "grabbing"
 
-            this.zIndex = 20;
-            this.card.style.zIndex = this.zIndex
-            this.option.transform.translateY = this.zIndex
+            this.setZindex(20)
             this.setStyle()
             this.setTransform()
         }
@@ -70,11 +69,14 @@ var table;
             this.option.style.boxShadow = "drop-shadow(0px 5px 1px #00000055)"
             this.option.style.cursor = "grab"
 
-            this.zIndex = 1;
-            this.card.style.zIndex = this.zIndex
-            this.option.transform.translateY = this.zIndex
+            this.setZindex(0)
             this.setStyle()
             this.setTransform()
+        }
+        setZindex(num){
+            this.zIndex = num
+            this.card.style.zIndex = this.zIndex
+            this.option.transform.translateY = this.zIndex
         }
         setStyle() {
             this.card.style.filter = this.option.style.boxShadow
@@ -142,8 +144,8 @@ var table;
             this.table.addEventListener('mouseup', up)
             this.table.addEventListener('mousemove', move)
         }
-        createCard(option) {
-            this.cards.push(new Card(option));
+        createCard(option,spawnX,spawnY) {
+            this.cards.push(new Card(option, spawnX, spawnY));
         }
         render() {
             this.cards.forEach(x => {
@@ -162,7 +164,7 @@ table.createCard({
         backgroundColor: "white",
         borderRadius: 5
     }
-})
+},100,200)
 table.createCard({
     front: {
         image: "./assets/cards/king_of_spades.png"
@@ -171,7 +173,7 @@ table.createCard({
         backgroundColor: "white",
         borderRadius: 5
     }
-})
+},200,200)
 table.createCard({
     front: {
         image: "./assets/cards/queen_of_spades.png"
@@ -180,7 +182,7 @@ table.createCard({
         backgroundColor: "white",
         borderRadius: 5
     }
-})
+},300,200)
 table.createCard({
     front: {
         image: "./assets/cards/jack_of_spades.png"
@@ -189,7 +191,7 @@ table.createCard({
         backgroundColor: "white",
         borderRadius: 5
     }
-})
+},400,200)
 table.createCard({
     front: {
         image: "./assets/cards/10_of_spades.png"
@@ -198,5 +200,5 @@ table.createCard({
         backgroundColor: "white",
         borderRadius: 5
     }
-})
+},500,200)
 table.render()
