@@ -302,8 +302,8 @@ table.createProp({
         image: "./assets/coin.png"
     },
 }, 800, 600)
-table.createProp({
-    class: 'coin',
+table.createProps({
+    class: 'card',
     width: 286,
     height: 397,
     front: {
@@ -312,7 +312,7 @@ table.createProp({
     back: {
         image: "./assets/hearth2.png"
     },
-}, 1000, 600)
+},5, 1000, 600)
 table.createProps({
     class: 'coin',
     width: 100,
