@@ -6,6 +6,7 @@ var table;
             option = option || {style:{}}
             option.style = option.style || {}
             this.option = {
+                class: option.class || 'card',
                 width: option.width || 200,
                 height: option.height || 300,
                 reverse: option.reverse || true,
@@ -145,8 +146,13 @@ var table;
             this.table.addEventListener('mouseup', up)
             this.table.addEventListener('mousemove', move)
         }
-        createCard(option,spawnX,spawnY) {
+        createObject(option,spawnX,spawnY) {
             this.cards.push(new Card(option, spawnX, spawnY));
+        }
+        createObjects(option,count,spawnX,spawnY){
+            for(let i = 0; i < count; i++){
+                this.cards.push(new Card(option,spawnX,spawnY));
+            }
         }
         render() {
             this.cards.forEach(x => {
@@ -157,7 +163,7 @@ var table;
     table = new Table(document.getElementById('table'));
 })()
 table.init();
-table.createCard({
+table.createObject({
     front: {
         image: "./assets/cards/ace_of_spades.png"
     },
@@ -166,7 +172,7 @@ table.createCard({
         borderRadius: 5
     }
 },100,200)
-table.createCard({
+table.createObject({
     front: {
         image: "./assets/cards/king_of_spades.png"
     },
@@ -175,7 +181,7 @@ table.createCard({
         borderRadius: 5
     }
 },200,200)
-table.createCard({
+table.createObject({
     front: {
         image: "./assets/cards/queen_of_spades.png"
     },
@@ -184,7 +190,7 @@ table.createCard({
         borderRadius: 5
     }
 },300,200)
-table.createCard({
+table.createObject({
     front: {
         image: "./assets/cards/jack_of_spades.png"
     },
@@ -193,7 +199,7 @@ table.createCard({
         borderRadius: 5
     }
 },400,200)
-table.createCard({
+table.createObject({
     front: {
         image: "./assets/cards/10_of_spades.png"
     },
@@ -202,7 +208,8 @@ table.createCard({
         borderRadius: 5
     }
 },500,200)
-table.createCard({
+table.createObject({
+    class: 'coin',
     width: 100,
     height: 100,
     front: {
@@ -212,7 +219,8 @@ table.createCard({
         image: "./assets/coin.png"
     },
 }, 600, 600)
-table.createCard({
+table.createObject({
+    class: 'coin',
     width: 100,
     height: 100,
     front: {
@@ -222,7 +230,8 @@ table.createCard({
         image: "./assets/coin.png"
     },
 }, 800, 600)
-table.createCard({
+table.createObject({
+    class: 'coin',
     width: 286,
     height: 397,
     front: {
@@ -232,4 +241,15 @@ table.createCard({
         image: "./assets/hearth2.png"
     },
 }, 1000, 600)
+table.createObjects({
+    class: 'coin',
+    width: 100,
+    height: 100,
+    front: {
+        image: "./assets/chip.png"
+    },
+    back: {
+        image: "./assets/chip.png"
+    },
+}, 10,400,400)
 table.render()
