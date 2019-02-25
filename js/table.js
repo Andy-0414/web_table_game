@@ -1,7 +1,7 @@
 var table;
 
 (() => {
-    class Card {
+    class Prop {
         constructor(option,x,y) {
             option = option || {style:{}}
             option.style = option.style || {}
@@ -27,18 +27,18 @@ var table;
                     scale: 1,
                 }
             }
-            this.card = document.createElement('div')
-            this.card.className = 'card'
-            this.card.draggable = false
-            this.card.controller = this
+            this.prop = document.createElement('div')
+            this.prop.className = 'prop'
+            this.prop.draggable = false
+            this.prop.controller = this
 
-            this.card.style.width = this.option.width + "px"
-            this.card.style.height = this.option.height + "px"
-            this.card.style.backgroundImage = `url('${this.option.reverse ? this.option.back.image : this.option.front.image}')`
-            this.card.style.backgroundPosition = 'center'
-            this.card.style.backgroundSize = 'contain'
+            this.prop.style.width = this.option.width + "px"
+            this.prop.style.height = this.option.height + "px"
+            this.prop.style.backgroundImage = `url('${this.option.reverse ? this.option.back.image : this.option.front.image}')`
+            this.prop.style.backgroundPosition = 'center'
+            this.prop.style.backgroundSize = 'contain'
 
-            this.card.addEventListener('contextmenu', () => {
+            this.prop.addEventListener('contextmenu', () => {
                 this.reverse()
             })
 
@@ -50,8 +50,8 @@ var table;
             this.centerX = this.option.width / 2
             this.centerY = this.option.height / 2
 
-            this.card.style.left = this.x
-            this.card.style.top = this.y
+            this.prop.style.left = this.x
+            this.prop.style.top = this.y
 
             this.setPosition()
             this.setStyle()
@@ -78,27 +78,27 @@ var table;
         }
         setZindex(num){
             this.zIndex = num
-            this.card.style.zIndex = this.zIndex
+            this.prop.style.zIndex = this.zIndex
         }
         decreaseZindex(){
             if(this.zIndex > 0) this.zIndex--
-            this.card.style.zIndex = this.zIndex
+            this.prop.style.zIndex = this.zIndex
         }
         setStyle() {
-            this.card.style.filter = this.option.style.boxShadow
-            this.card.style.cursor = this.option.style.cursor
-            this.card.style.backgroundColor = this.option.style.backgroundColor
-            this.card.style.borderRadius = this.option.style.borderRadius + "px"
+            this.prop.style.filter = this.option.style.boxShadow
+            this.prop.style.cursor = this.option.style.cursor
+            this.prop.style.backgroundColor = this.option.style.backgroundColor
+            this.prop.style.borderRadius = this.option.style.borderRadius + "px"
         }
         setTransform() {
-            this.card.style.transform = `
+            this.prop.style.transform = `
             translateY(-${this.option.transform.translateY}px) 
             scale(${this.option.transform.scale}) 
             rotateY(${this.option.reverse ? 180 : 0}deg) `
         }
         setPosition() {
-            this.card.style.left = (this.x - this.centerX) + "px"
-            this.card.style.top = (this.y - this.centerY) + "px"
+            this.prop.style.left = (this.x - this.centerX) + "px"
+            this.prop.style.top = (this.y - this.centerY) + "px"
         }
         setPos(x, y) {
             this.x = x
@@ -108,12 +108,12 @@ var table;
 
         reverse() {
             this.option.reverse = !this.option.reverse
-            this.card.style.backgroundImage = `url('${this.option.reverse ? this.option.back.image :  this.option.front.image}')`
+            this.prop.style.backgroundImage = `url('${this.option.reverse ? this.option.back.image :  this.option.front.image}')`
             this.setTransform()
         }
 
-        getCard() {
-            return this.card
+        getProp() {
+            return this.prop
         }
     }
 
@@ -121,33 +121,33 @@ var table;
         constructor(table) {
             this.table = table
 
-            this.cards = []
-            this.card = null
+            this.props = []
+            this.prop = null
 
             this.cursorX;
             this.cursorY;
         }
         init() {
             var down = (e)=> {
-                if (e.target.classList.contains('card')) {
-                    this.card = e.target
-                    this.cards.forEach((x,idx)=>{
+                if (e.target.classList.contains('prop') || e.target.classList.contains('props')) {
+                    this.prop = e.target
+                    this.props.forEach((x,idx)=>{
                         x.decreaseZindex()
                     })
-                    this.card.controller.attach()
+                    this.prop.controller.attach()
                 }
             }
             var up = (e)=> {
-                if (this.card){
-                    this.card.controller.detach()
-                    this.card = null
+                if (this.prop){
+                    this.prop.controller.detach()
+                    this.prop = null
                 }
             }
             var move=(e)=> {
                 this.cursorX = e.clientX
                 this.cursorY = e.clientY
-                if (this.card) {
-                    this.card.controller.setPos(this.cursorX, this.cursorY)
+                if (this.prop) {
+                    this.prop.controller.setPos(this.cursorX, this.cursorY)
                 }
             }
 
@@ -156,16 +156,16 @@ var table;
             this.table.addEventListener('mousemove', move)
         }
         createObject(option,spawnX,spawnY) {
-            this.cards.push(new Card(option, spawnX, spawnY));
+            this.props.push(new Prop(option, spawnX, spawnY));
         }
         createObjects(option,count,spawnX,spawnY){
             for(let i = 0; i < count; i++){
-                this.cards.push(new Card(option,spawnX,spawnY));
+                this.props.push(new Prop(option,spawnX,spawnY));
             }
         }
         render() {
-            this.cards.forEach(x => {
-                this.table.appendChild(x.getCard())
+            this.props.forEach(x => {
+                this.table.appendChild(x.getProp())
             })
         }
     }
