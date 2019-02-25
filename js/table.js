@@ -1,9 +1,9 @@
 var table;
 
 (() => {
-    class Prop {
-        constructor(option,x,y) {
-            option = option || {style:{}}
+    class MoveAbleProp {
+        constructor(option, x, y) {
+            option = option || { style: {} }
             option.style = option.style || {}
             this.option = {
                 class: option.class || 'card',
@@ -11,7 +11,7 @@ var table;
                 height: option.height || 300,
                 reverse: option.reverse || true,
                 front: option.front || {
-                    image: './assets/cards/black_joker.png'
+                    image: './assets/cards/back.png'
                 },
                 back: option.back || {
                     image: './assets/cards/back.png'
@@ -27,36 +27,19 @@ var table;
                     scale: 1,
                 }
             }
-            this.prop = document.createElement('div')
-            this.prop.className = 'prop'
-            this.prop.draggable = false
-            this.prop.controller = this
-
-            this.prop.style.width = this.option.width + "px"
-            this.prop.style.height = this.option.height + "px"
-            this.prop.style.backgroundImage = `url('${this.option.reverse ? this.option.back.image : this.option.front.image}')`
-            this.prop.style.backgroundPosition = 'center'
-            this.prop.style.backgroundSize = 'contain'
-
-            this.prop.addEventListener('contextmenu', () => {
-                this.reverse()
-            })
 
             this.x = x || 0
             this.y = y || 0
 
-            this.zIndex = 0;
+            this.zIndex = 0
 
             this.centerX = this.option.width / 2
             this.centerY = this.option.height / 2
-
-            this.prop.style.left = this.x
-            this.prop.style.top = this.y
-
+        }
+        init() {
             this.setPosition()
             this.setStyle()
             this.setTransform()
-
             this.detach()
         }
         attach() {
@@ -76,12 +59,21 @@ var table;
             this.setStyle()
             this.setTransform()
         }
-        setZindex(num){
+        setPosition() {
+            this.prop.style.left = (this.x - this.centerX) + "px"
+            this.prop.style.top = (this.y - this.centerY) + "px"
+        }
+        setPos(x, y) {
+            this.x = x
+            this.y = y
+            this.setPosition()
+        }
+        setZindex(num) {
             this.zIndex = num
             this.prop.style.zIndex = this.zIndex
         }
-        decreaseZindex(){
-            if(this.zIndex > 0) this.zIndex--
+        decreaseZindex() {
+            if (this.zIndex > 0) this.zIndex--
             this.prop.style.zIndex = this.zIndex
         }
         setStyle() {
@@ -96,24 +88,73 @@ var table;
             scale(${this.option.transform.scale}) 
             rotateY(${this.option.reverse ? 180 : 0}deg) `
         }
-        setPosition() {
-            this.prop.style.left = (this.x - this.centerX) + "px"
-            this.prop.style.top = (this.y - this.centerY) + "px"
+        getElement() {
+            return this.prop
         }
-        setPos(x, y) {
-            this.x = x
-            this.y = y
-            this.setPosition()
-        }
+    }
+    class Prop extends MoveAbleProp {
+        constructor(option, x, y) {
+            super(option, x, y)
 
+            this.prop = document.createElement('div')
+            this.prop.className = 'prop'
+            this.prop.draggable = false
+            this.prop.controller = this
+
+            this.prop.style.width = this.option.width + "px"
+            this.prop.style.height = this.option.height + "px"
+            this.prop.style.backgroundImage = `url('${this.option.reverse ? this.option.back.image : this.option.front.image}')`
+            this.prop.style.backgroundPosition = 'center'
+            this.prop.style.backgroundSize = 'contain'
+
+            this.prop.addEventListener('contextmenu', () => {
+                this.reverse()
+            })
+
+            this.prop.style.left = this.x
+            this.prop.style.top = this.y
+
+            this.init()
+        }
         reverse() {
             this.option.reverse = !this.option.reverse
-            this.prop.style.backgroundImage = `url('${this.option.reverse ? this.option.back.image :  this.option.front.image}')`
+            this.prop.style.backgroundImage = `url('${this.option.reverse ? this.option.back.image : this.option.front.image}')`
             this.setTransform()
         }
+    }
+    class Props extends MoveAbleProp {
+        constructor(option, count, x, y) {
+            super(option, x, y)
+            option.stack = option.stack || []
+            this.stack = (option.stack.length > 0 ? option.stack.filter(x => x.option.class == this.option.class) : null) || [...Array(count).keys()].map(() => new Prop(option))
 
-        getProp() {
-            return this.prop
+            this.prop = document.createElement('div')
+            this.prop.className = 'props'
+            this.prop.draggable = false
+            this.prop.controller = this
+
+            this.prop.style.left = this.x
+            this.prop.style.top = this.y
+
+            this.prop.style.width = this.option.width + "px"
+            this.prop.style.height = this.option.height + "px"
+            this.prop.style.backgroundImage = `url('${this.option.reverse ? this.option.back.image : this.option.front.image}')`
+            this.prop.style.backgroundPosition = 'center'
+            this.prop.style.backgroundSize = 'contain'
+
+            this.init()
+        }
+        popProp() {
+            var con = this.stack.pop()
+            con.setPos(this.x, this.y)
+            return con.getElement()
+        }
+        pushProp(prop) {
+
+        }
+
+        chkStack() {
+            return this.stack.length <= 0
         }
     }
 
@@ -128,51 +169,73 @@ var table;
             this.cursorY;
         }
         init() {
-            var down = (e)=> {
-                if (e.target.classList.contains('prop') || e.target.classList.contains('props')) {
-                    this.prop = e.target
-                    this.props.forEach((x,idx)=>{
+            this.table.addEventListener('mousedown', (e) => {
+                var moveProp = (prop) => {
+                    this.prop = prop
+                    this.props.forEach((x, idx) => {
+                        console.log(x.zIndex)
                         x.decreaseZindex()
                     })
                     this.prop.controller.attach()
                 }
-            }
-            var up = (e)=> {
-                if (this.prop){
+                var target = e.target
+                if (target.classList.contains('props')) {
+                    switch (e.which) {
+                        case 3:
+                            moveProp(target)
+                            break;
+                        case 1:
+                            var ele = target.controller.popProp()
+                            this.appendTable(ele)
+                            moveProp(ele)
+                            if (target.controller.chkStack()) {
+                                this.removeTable(target)
+                            }
+                            break;
+                    }
+                }
+                else if (target.classList.contains('prop')) {
+                    moveProp(target)
+                }
+            })
+            this.table.addEventListener('mouseup', (e) => {
+                if (this.prop) {
                     this.prop.controller.detach()
                     this.prop = null
                 }
-            }
-            var move=(e)=> {
+            })
+            this.table.addEventListener('mousemove', (e) => {
                 this.cursorX = e.clientX
                 this.cursorY = e.clientY
                 if (this.prop) {
                     this.prop.controller.setPos(this.cursorX, this.cursorY)
                 }
-            }
-
-            this.table.addEventListener('mousedown', down)
-            this.table.addEventListener('mouseup', up)
-            this.table.addEventListener('mousemove', move)
+            })
         }
-        createObject(option,spawnX,spawnY) {
+        createProp(option, spawnX, spawnY) {
             this.props.push(new Prop(option, spawnX, spawnY));
         }
-        createObjects(option,count,spawnX,spawnY){
-            for(let i = 0; i < count; i++){
-                this.props.push(new Prop(option,spawnX,spawnY));
-            }
+        createProps(option,count, spawnX, spawnY) {
+            this.props.push(new Props(option,count, spawnX, spawnY))
         }
         render() {
             this.props.forEach(x => {
-                this.table.appendChild(x.getProp())
+                this.table.appendChild(x.getElement())
             })
+        }
+        appendTable(ele) {
+            this.props.push(ele.controller)
+            this.table.appendChild(ele)
+        }
+        removeTable(ele) {
+            this.props.splice(ele.controller,1)
+            this.table.removeChild(ele)
         }
     }
     table = new Table(document.getElementById('table'));
 })()
 table.init();
-table.createObject({
+table.createProp({
     front: {
         image: "./assets/cards/ace_of_spades.png"
     },
@@ -180,8 +243,8 @@ table.createObject({
         backgroundColor: "white",
         borderRadius: 5
     }
-},100,200)
-table.createObject({
+}, 100, 200)
+table.createProp({
     front: {
         image: "./assets/cards/king_of_spades.png"
     },
@@ -189,8 +252,8 @@ table.createObject({
         backgroundColor: "white",
         borderRadius: 5
     }
-},200,200)
-table.createObject({
+}, 200, 200)
+table.createProp({
     front: {
         image: "./assets/cards/queen_of_spades.png"
     },
@@ -198,8 +261,8 @@ table.createObject({
         backgroundColor: "white",
         borderRadius: 5
     }
-},300,200)
-table.createObject({
+}, 300, 200)
+table.createProp({
     front: {
         image: "./assets/cards/jack_of_spades.png"
     },
@@ -207,8 +270,8 @@ table.createObject({
         backgroundColor: "white",
         borderRadius: 5
     }
-},400,200)
-table.createObject({
+}, 400, 200)
+table.createProp({
     front: {
         image: "./assets/cards/10_of_spades.png"
     },
@@ -216,8 +279,8 @@ table.createObject({
         backgroundColor: "white",
         borderRadius: 5
     }
-},500,200)
-table.createObject({
+}, 500, 200)
+table.createProp({
     class: 'coin',
     width: 100,
     height: 100,
@@ -228,7 +291,7 @@ table.createObject({
         image: "./assets/coin.png"
     },
 }, 600, 600)
-table.createObject({
+table.createProp({
     class: 'coin',
     width: 100,
     height: 100,
@@ -239,7 +302,7 @@ table.createObject({
         image: "./assets/coin.png"
     },
 }, 800, 600)
-table.createObject({
+table.createProp({
     class: 'coin',
     width: 286,
     height: 397,
@@ -250,7 +313,7 @@ table.createObject({
         image: "./assets/hearth2.png"
     },
 }, 1000, 600)
-table.createObjects({
+table.createProps({
     class: 'coin',
     width: 100,
     height: 100,
