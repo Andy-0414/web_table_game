@@ -18,7 +18,7 @@ var table;
                 },
                 style: {
                     cursor: "grab",
-                    boxShadow: "drop-shadow(0px 0px 1px #00000055)",
+                    boxShadow: "drop-shadow(0px 1px 1px #00000055)",
                     backgroundColor: option.style.backgroundColor || "",
                     borderRadius: option.style.borderRadius || 0
                 },
@@ -63,22 +63,26 @@ var table;
             this.option.style.boxShadow = "drop-shadow(0px 20px 1px #00000055)"
             this.option.style.cursor = "grabbing"
 
-            this.setZindex(20)
+            this.option.transform.translateY = 20
+            this.setZindex(100)
             this.setStyle()
             this.setTransform()
         }
         detach() {
-            this.option.style.boxShadow = "drop-shadow(0px 5px 1px #00000055)"
+            this.option.style.boxShadow = "drop-shadow(0px 1px 1px #00000055)"
             this.option.style.cursor = "grab"
 
-            this.setZindex(0)
+            this.option.transform.translateY = 0
             this.setStyle()
             this.setTransform()
         }
         setZindex(num){
             this.zIndex = num
             this.card.style.zIndex = this.zIndex
-            this.option.transform.translateY = this.zIndex
+        }
+        decreaseZindex(){
+            if(this.zIndex > 0) this.zIndex--
+            this.card.style.zIndex = this.zIndex
         }
         setStyle() {
             this.card.style.filter = this.option.style.boxShadow
@@ -124,17 +128,22 @@ var table;
             this.cursorY;
         }
         init() {
-            function down(e) {
+            var down = (e)=> {
                 if (e.target.classList.contains('card')) {
                     this.card = e.target
+                    this.cards.forEach((x,idx)=>{
+                        x.decreaseZindex()
+                    })
                     this.card.controller.attach()
                 }
             }
-            function up(e) {
-                if (this.card) this.card.controller.detach()
-                this.card = null;
+            var up = (e)=> {
+                if (this.card){
+                    this.card.controller.detach()
+                    this.card = null
+                }
             }
-            function move(e) {
+            var move=(e)=> {
                 this.cursorX = e.clientX
                 this.cursorY = e.clientY
                 if (this.card) {
