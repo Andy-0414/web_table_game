@@ -23,7 +23,7 @@
     width: 100px;
     height: 100px;
 
-    transition: cubic-bezier(0.075, 0.82, 0.165, 1) 0.5s;
+    transition: ease-out 0.2s;
     transform-origin: center;
     background-repeat: no-repeat;
 }
