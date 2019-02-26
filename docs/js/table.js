@@ -349,7 +349,7 @@ class TableTop {
         socket.on('changeProp', data => {
             var target = getTarget(data._id)
             if (!target) return
-            data.option.active = data.active
+            target.active = data.active
             data.option.x = data.x
             data.option.y = data.y
             target.optionSetting(data.option)
