@@ -11,17 +11,34 @@ app.use(express.static('docs'))
 app.get('/',(req,res)=>{
     res.sendFile(__dirname+'/index.html')
 })
-
+var tableState = [
+    trumpTable.getTrumpCard(),
+    coinTable.getCoin(),
+]
 io.on('connection', (socket)=>{
-    socket.emit('createProps', trumpTable.getTrumpCard())
-    socket.emit('createProps', coinTable.getCoin())
+    var changeTableState = (data) => {
+        tableState[tableState.findIndex(x => x._id == data._id)] = data
+    }
+    var currentId = 0;
+    tableState.forEach((x,idx)=>{
+        tableState[idx]._id = currentId++
+        if(x.count || (x.option ? x.option.stack : false)){
+            socket.emit('createProps',x)
+        }
+        else{
+            socket.emit('createProp',x)
+        }
+    })
     socket.on('createProp',data=>{
+        tableState.push(data)
         socket.broadcast.emit('createProp',data)
     })
     socket.on('reverse', data => {
+        changeTableState(data)
         socket.broadcast.emit('reverse', data)
     })
     socket.on('changeProp',data=>{
+        changeTableState(data)
         socket.broadcast.emit('changeProp',data)
     })
     

@@ -168,7 +168,7 @@ class Props extends MoveAbleProp {
     constructor(id, option, count, x, y) {
         super(id, option, x, y)
         option.stack = option.stack || []
-        this.stack = (option.stack.length > 0 ? option.stack.map((e, idx) => MoveAbleProp.defaultOptionFilter(e)) : null)
+        this.option.stack = (option.stack.length > 0 ? option.stack.map((e, idx) => MoveAbleProp.defaultOptionFilter(e)) : null)
             || [...Array(count).keys()].map((e, idx) => MoveAbleProp.defaultOptionFilter(option))
 
 
@@ -191,46 +191,47 @@ class Props extends MoveAbleProp {
         this.init()
     }
     setStack(stack){
-        this.stack = stack
+        this.option.stack = stack
         this.setState()
     }
     setState() {
-        if (!this.stack.length) return;
-        var con = this.stack[this.stack.length - 1]
-        console.log(con.front)
+        if (!this.option.stack.length) return;
+        var con = this.option.stack[this.option.stack.length - 1]
         this.prop.style.backgroundImage = `url('${con.reverse ? con.back.image : con.front.image}')`
         this.option.style.backgroundColor = `${con.style.backgroundColor}`
-        this.prop.innerText = ` x${this.stack.length}`
+        this.prop.innerText = ` x${this.option.stack.length}`
         this.prop.style.borderRadius = con.style.borderRadius + "px"
     }
     popProp() {
-        var popData = this.stack.pop()
+        var popData = this.option.stack.pop()
         var con = new Prop(`${this._id}.${this.childNumber++}`,popData)
         con.setPos(this.x, this.y)
         this.setState()
         return con
     }
     pushProp(prop) {
-        this.stack.push(prop)
+        this.option.stack.push(prop)
         this.setState()
     }
     shuffleStack() {
-        var len = this.stack.length
-        this.stack.forEach((x, idx) => {
+        var len = this.option.stack.length
+        this.option.stack.forEach((x, idx) => {
             var rand = Math.floor(Math.random() * (len + 1))
-            var tmp = this.stack[idx]
-            this.stack[idx] = this.stack[rand]
-            this.stack[rand] = tmp
+            var tmp = this.option.stack[idx]
+            this.option.stack[idx] = this.option.stack[rand]
+            this.option.stack[rand] = tmp
         })
+        socket.emit('changeProp', TableTop.compressPropData(this))
     }
     chkStack() {
-        return this.stack.length <= 0
+        return this.option.stack.length <= 0
     }
 }
 
 class TableTop {
     constructor(table) {
         this.table = table
+        this.table.innterHTML = '';
 
         this.props = []
         this.prop = null
@@ -290,22 +291,22 @@ class TableTop {
             }
         })
     }
-    createProp(option, spawnX, spawnY) {
-        socket.emit('createProp', { option, spawnX, spawnY })
-        return this.createPropToClient(option, spawnX, spawnX)
+    createProp(option, x, y) {
+        socket.emit('createProp', { _id: this.currentId, option, x, y })
+        return this.createPropToClient(option, x, y)
     }
-    createPropToClient(option, spawnX, spawnY) {
-        var prop = new Prop(this.currentId++, option, spawnX, spawnY)
+    createPropToClient(option, x, y) {
+        var prop = new Prop(this.currentId++, option, x, y)
         this.props.push(prop);
         this.appendTable(prop.getElement())
         return prop
     }
-    createProps(option, count, spawnX, spawnY) {
-        socket.emit('createProps', { option, count, spawnX, spawnY })
-        return this.createPropsToClient(option, count, spawnX, spawnX)
+    createProps(option, count, x, y) {
+        socket.emit('createProps', { _id: this.currentId, option, count, x, y })
+        return this.createPropsToClient(option, count, x, y)
     }
-    createPropsToClient(option, count, spawnX, spawnY) {
-        var prop = new Props(this.currentId++, option, count, spawnX, spawnY)
+    createPropsToClient(option, count, x, y) {
+        var prop = new Props(this.currentId++, option, count, x, y)
         this.props.push(prop)
         this.appendTable(prop.getElement())
         return prop
@@ -321,22 +322,23 @@ class TableTop {
     }
 
     static compressPropData(prop) {
-        return {
+        var out = {
             _id: prop._id,
             active: prop.active,
             x: prop.x,
             y: prop.y,
             option: prop.option,
-            stack: prop.stack || null
         }
+        out.option.stack = prop.option.stack || null
+        return out
     }
     networtInit() {
         var getTarget = (id) => this.props[this.props.findIndex(x => x._id == id)]
         socket.on('createProp', data => {
-            table.createPropToClient(data.option, data.spawnX, data.spawnY)
+            table.createPropToClient(data.option, data.x, data.y)
         })
         socket.on('createProps', data => {
-            table.createPropsToClient(data.option, data.count || null, data.spawnX, data.spawnY)
+            table.createPropsToClient(data.option, data.count || null, data.x, data.y)
         })
         socket.on('reverse', data => {
             var target = getTarget(data._id)
@@ -350,13 +352,10 @@ class TableTop {
             data.option.x = data.x
             data.option.y = data.y
             target.optionSetting(data.option)
-            if(target.stack){
-                target.setStack(data.stack)
+            if (data.option.stack){
+                target.setStack(data.option.stack)
             }
             target.render()
-        })
-        socket.on('changeProps', data => {
-
         })
     }
 }

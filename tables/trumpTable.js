@@ -22,8 +22,8 @@ module.exports = {
             option : {
                 stack: cardList
             },
-            spawnX : 200,
-            spawnY : 200,
+            x : 200,
+            y : 200,
         }
     }
 

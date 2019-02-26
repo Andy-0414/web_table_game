@@ -14,8 +14,8 @@ module.exports = {
                 },
             },
             count : 50,
-            spawnX: 400,
-            spawnY: 400,
+            x: 400,
+            y: 400,
         }
     }
 
