@@ -9,7 +9,7 @@ var table;
                 class: option.class || 'card',
                 width: option.width || 200,
                 height: option.height || 300,
-                reverse: option.reverse || true,
+                reverse: option.reverse || false,
                 front: option.front || {
                     image: './assets/cards/back.png'
                 },
@@ -86,7 +86,8 @@ var table;
             this.prop.style.transform = `
             translateY(-${this.option.transform.translateY}px) 
             scale(${this.option.transform.scale}) 
-            rotateY(${this.option.reverse ? 180 : 0}deg) `
+            rotateY(${this.option.reverse ? 180 : 0}deg) 
+            scaleX(${this.option.reverse ? -1 : 1})`
         }
         getElement() {
             return this.prop
@@ -126,7 +127,8 @@ var table;
         constructor(option, count, x, y) {
             super(option, x, y)
             option.stack = option.stack || []
-            this.stack = (option.stack.length > 0 ? option.stack.filter(x => x.option.class == this.option.class) : null) || [...Array(count).keys()].map(() => new Prop(option))
+            console.log(option.stack)
+            this.stack = (option.stack.length > 0 ? option.stack.map((e) => new Prop(e)) : null) || [...Array(count).keys()].map(() => new Prop(option))
 
             this.prop = document.createElement('div')
             this.prop.className = 'props'
@@ -138,19 +140,28 @@ var table;
 
             this.prop.style.width = this.option.width + "px"
             this.prop.style.height = this.option.height + "px"
-            this.prop.style.backgroundImage = `url('${this.option.reverse ? this.option.back.image : this.option.front.image}')`
             this.prop.style.backgroundPosition = 'center'
             this.prop.style.backgroundSize = 'contain'
 
+            this.setState()
             this.init()
+        }
+        setState() {
+            if (!this.stack.length) return;
+            var con = this.stack[this.stack.length - 1]
+            this.prop.style.backgroundImage = `url('${con.option.reverse ? con.option.back.image : con.option.front.image}')`
+            this.option.style.backgroundColor = `${con.option.style.backgroundColor}`
+            this.prop.innerText = ` x${this.stack.length}`
         }
         popProp() {
             var con = this.stack.pop()
+            console.log(con)
             con.setPos(this.x, this.y)
+            this.setState()
             return con.getElement()
         }
         pushProp(prop) {
-
+            this.setState()
         }
 
         chkStack() {
@@ -173,7 +184,6 @@ var table;
                 var moveProp = (prop) => {
                     this.prop = prop
                     this.props.forEach((x, idx) => {
-                        console.log(x.zIndex)
                         x.decreaseZindex()
                     })
                     this.prop.controller.attach()
@@ -213,10 +223,14 @@ var table;
             })
         }
         createProp(option, spawnX, spawnY) {
-            this.props.push(new Prop(option, spawnX, spawnY));
+            var prop = new Prop(option, spawnX, spawnY)
+            this.props.push(prop);
+            return prop
         }
-        createProps(option,count, spawnX, spawnY) {
-            this.props.push(new Props(option,count, spawnX, spawnY))
+        createProps(option, count, spawnX, spawnY) {
+            var prop = new Props(option, count, spawnX, spawnY)
+            this.props.push(prop)
+            return prop
         }
         render() {
             this.props.forEach(x => {
@@ -228,58 +242,68 @@ var table;
             this.table.appendChild(ele)
         }
         removeTable(ele) {
-            this.props.splice(ele.controller,1)
+            this.props.splice(ele.controller, 1)
             this.table.removeChild(ele)
         }
     }
     table = new Table(document.getElementById('table'));
 })()
 table.init();
-table.createProp({
-    front: {
-        image: "./assets/cards/ace_of_spades.png"
-    },
-    style: {
-        backgroundColor: "white",
-        borderRadius: 5
-    }
-}, 100, 200)
-table.createProp({
-    front: {
-        image: "./assets/cards/king_of_spades.png"
-    },
-    style: {
-        backgroundColor: "white",
-        borderRadius: 5
-    }
-}, 200, 200)
-table.createProp({
-    front: {
-        image: "./assets/cards/queen_of_spades.png"
-    },
-    style: {
-        backgroundColor: "white",
-        borderRadius: 5
-    }
-}, 300, 200)
-table.createProp({
-    front: {
-        image: "./assets/cards/jack_of_spades.png"
-    },
-    style: {
-        backgroundColor: "white",
-        borderRadius: 5
-    }
-}, 400, 200)
-table.createProp({
-    front: {
-        image: "./assets/cards/10_of_spades.png"
-    },
-    style: {
-        backgroundColor: "white",
-        borderRadius: 5
-    }
-}, 500, 200)
+table.createProps({
+    stack: [
+        {
+            class: 'card',
+            front: {
+                image: "./assets/cards/ace_of_spades.png"
+            },
+            style: {
+                backgroundColor: "white",
+                borderRadius: 5
+            }
+        },
+        {
+            class: 'card',
+            front: {
+                image: "./assets/cards/king_of_spades.png"
+            },
+            style: {
+                backgroundColor: "white",
+                borderRadius: 5
+            }
+        },
+        {
+            class: 'card',
+            front: {
+                image: "./assets/cards/queen_of_spades.png"
+            },
+            style: {
+                backgroundColor: "white",
+                borderRadius: 5
+            }
+        },
+        {
+            class: 'card',
+            front: {
+                image: "./assets/cards/jack_of_spades.png"
+            },
+            style: {
+                backgroundColor: "white",
+                borderRadius: 5
+            }
+        },
+        {
+            class: 'card',
+            front: {
+                image: "./assets/cards/10_of_spades.png"
+            },
+            style: {
+                backgroundColor: "white",
+                borderRadius: 5
+            }
+        }
+    ]
+},null,200,200)
+
 table.createProp({
     class: 'coin',
     width: 100,
@@ -306,13 +330,14 @@ table.createProps({
     class: 'card',
     width: 286,
     height: 397,
+    reverse: false,
     front: {
         image: "./assets/hearth.png"
     },
     back: {
         image: "./assets/hearth2.png"
     },
-},5, 1000, 600)
+}, 5, 1000, 600)
 table.createProps({
     class: 'coin',
     width: 100,
@@ -323,5 +348,5 @@ table.createProps({
     back: {
         image: "./assets/chip.png"
     },
-}, 10,400,400)
+}, 10, 400, 400)
 table.render()
