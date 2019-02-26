@@ -68,7 +68,7 @@ class MoveAbleProp {
         this.option.style.cursor = "grabbing"
 
         this.option.transform.translateY = 20
-        this.setZindex(100)
+        this.setZindex(1000)
         this.setStyle()
         this.setTransform()
     }
@@ -249,10 +249,9 @@ class TableTop {
             var moveProp = (prop) => {
                 if (!prop.controller.isActive()) {
                     this.prop = prop
-                    this.props.forEach((x, idx) => {
-                        x.decreaseZindex()
-                    })
+                    this.decreaseZindexAll()
                     this.prop.controller.attach()
+                    socket.emit('decreaseZindexAll',true)
                     socket.emit('changeProp', TableTop.compressPropData(this.prop.controller))
                 }
             }
@@ -292,6 +291,11 @@ class TableTop {
             }
         })
     }
+    decreaseZindexAll(){
+        this.props.forEach((x, idx) => {
+            x.decreaseZindex()
+        })
+    }
     createProp(option, x, y) {
         socket.emit('createProp', { _id: this.currentId, option, x, y })
         return this.createPropToClient(option, x, y)
@@ -318,8 +322,11 @@ class TableTop {
         this.table.appendChild(ele)
     }
     removeTable(ele) {
-        this.props.splice(ele.controller, 1)
-        this.table.removeChild(ele)
+        socket.emit('removeProp', { _id: ele.controller._id})
+        this.removeTableToClient(ele.controller)
+    }
+    removeTableToClient(con){
+        this.table.removeChild(this.props.splice(this.props.findIndex(x => x._id == con._id), 1)[0].prop)
     }
 
     static compressPropData(prop) {
@@ -335,6 +342,9 @@ class TableTop {
     }
     networtInit() {
         var getTarget = (id) => this.props[this.props.findIndex(x => x._id == id)]
+        socket.on('decreaseZindexAll',data=>{
+            this.decreaseZindexAll()
+        })
         socket.on('createProp', data => {
             table.createPropToClient(data.option, data.x, data.y)
         })
@@ -357,6 +367,9 @@ class TableTop {
                 target.setStack(data.option.stack)
             }
             target.render()
+        })
+        socket.on('removeProp',data=>{
+            this.removeTableToClient(data)
         })
     }
 }

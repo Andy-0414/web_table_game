@@ -14,6 +14,7 @@ app.get('/',(req,res)=>{
 var tableState = [
     trumpTable.getTrumpCard(),
     coinTable.getCoin(),
+    coinTable.getChip()
 ]
 io.on('connection', (socket)=>{
     var changeTableState = (data) => {
@@ -29,6 +30,9 @@ io.on('connection', (socket)=>{
             socket.emit('createProp',x)
         }
     })
+    socket.on('decreaseZindexAll',data=>{
+        socket.broadcast.emit('decreaseZindexAll',data)
+    })
     socket.on('createProp',data=>{
         tableState.push(data)
         socket.broadcast.emit('createProp',data)
@@ -39,11 +43,15 @@ io.on('connection', (socket)=>{
     })
     socket.on('changeProp',data=>{
         changeTableState(data)
-        socket.broadcast.emit('changeProp',data)
+        socket.broadcast.emit('changeProp', data)
+    })
+    socket.on('removeProp',data=>{
+        tableState.splice(tableState.findIndex(x => x._id == data._id), 1)
+        socket.broadcast.emit('removeProp', data)
     })
     
 });
 
-http.listen(3000, () => {
+http.listen(3010, () => {
     console.log("server open");
 })
