@@ -232,7 +232,6 @@ class Props extends MoveAbleProp {
 class TableTop {
     constructor(table) {
         this.table = table
-        this.table.innterHTML = '';
 
         this.props = []
         this.prop = null
@@ -291,6 +290,9 @@ class TableTop {
             }
         })
     }
+    clearTable(){
+        this.table.innerHTML = '';
+    }
     decreaseZindexAll(){
         this.props.forEach((x, idx) => {
             x.decreaseZindex()
@@ -342,6 +344,9 @@ class TableTop {
     }
     networtInit() {
         var getTarget = (id) => this.props[this.props.findIndex(x => x._id == id)]
+        socket.on('clearTable', data => {
+            this.clearTable()
+        })
         socket.on('decreaseZindexAll',data=>{
             this.decreaseZindexAll()
         })

@@ -17,6 +17,7 @@ var tableState = [
     coinTable.getChip()
 ]
 io.on('connection', (socket)=>{
+    socket.emit('clearTable',true)
     var changeTableState = (data) => {
         tableState[tableState.findIndex(x => x._id == data._id)] = data
     }
@@ -52,6 +53,6 @@ io.on('connection', (socket)=>{
     
 });
 
-http.listen(3010, () => {
+http.listen(3000, () => {
     console.log("server open");
 })
