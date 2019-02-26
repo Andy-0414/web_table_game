@@ -1,8 +1,9 @@
 module.exports = {
     getCoin() {
         return {
-            class: 'card',
             option : {
+                class: 'coin',
+
                 width: 80,
                 height: 80,
                 reverse: false,

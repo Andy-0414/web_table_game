@@ -44,9 +44,10 @@ class MoveAbleProp {
     }
     optionSetting(option) {
         this.option = MoveAbleProp.defaultOptionFilter(option)
-        this.active = option.active
-        this.x = option.x
-        this.y = option.y
+        if (option) {
+            this.x = option.x || this.x
+            this.y = option.y || this.y
+        }
     }
     render() {
         if (this.active) this.attach()
@@ -153,7 +154,7 @@ class Prop extends MoveAbleProp {
     reverse() {
         socket.emit('reverse', {
             _id: this._id,
-            reverse: this.option.reverse
+            reverse: !this.option.reverse
         })
         this.reverseToClient()
     }
@@ -190,7 +191,7 @@ class Props extends MoveAbleProp {
         this.setState()
         this.init()
     }
-    setStack(stack){
+    setStack(stack) {
         this.option.stack = stack
         this.setState()
     }
@@ -204,7 +205,7 @@ class Props extends MoveAbleProp {
     }
     popProp() {
         var popData = this.option.stack.pop()
-        var con = new Prop(`${this._id}.${this.childNumber++}`,popData)
+        var con = new Prop(`${this._id}.${this.childNumber++}`, popData)
         con.setPos(this.x, this.y)
         this.setState()
         return con
@@ -352,7 +353,7 @@ class TableTop {
             data.option.x = data.x
             data.option.y = data.y
             target.optionSetting(data.option)
-            if (data.option.stack){
+            if (data.option.stack) {
                 target.setStack(data.option.stack)
             }
             target.render()

@@ -19,9 +19,9 @@ io.on('connection', (socket)=>{
     var changeTableState = (data) => {
         tableState[tableState.findIndex(x => x._id == data._id)] = data
     }
-    var currentId = 0;
     tableState.forEach((x,idx)=>{
-        tableState[idx]._id = currentId++
+        tableState[idx]._id = idx
+
         if(x.count || (x.option ? x.option.stack : false)){
             socket.emit('createProps',x)
         }
@@ -34,7 +34,7 @@ io.on('connection', (socket)=>{
         socket.broadcast.emit('createProp',data)
     })
     socket.on('reverse', data => {
-        changeTableState(data)
+        tableState[tableState.findIndex(x => x._id == data._id)].option.reverse = data.reverse
         socket.broadcast.emit('reverse', data)
     })
     socket.on('changeProp',data=>{
@@ -44,6 +44,6 @@ io.on('connection', (socket)=>{
     
 });
 
-http.listen(3000, () => {
+http.listen(3010, () => {
     console.log("server open");
 })
