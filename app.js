@@ -17,10 +17,10 @@ var tableState = [
     coinTable.getChip()
 ]
 io.on('connection', (socket)=>{
-    socket.emit('clearTable',true)
     var changeTableState = (data) => {
         tableState[tableState.findIndex(x => x._id == data._id)] = data
     }
+    socket.emit('clearTable', true)
     tableState.forEach((x,idx)=>{
         tableState[idx]._id = idx
 
@@ -55,4 +55,9 @@ io.on('connection', (socket)=>{
 
 http.listen(3000, () => {
     console.log("server open");
+    var tableState = [
+        trumpTable.getTrumpCard(),
+        coinTable.getCoin(),
+        coinTable.getChip()
+    ]
 })
