@@ -1,0 +1,25 @@
+{
+  "name": "web_table_game",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Andy-0414/web_table_game.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Andy-0414/web_table_game/issues"
+  },
+  "homepage": "https://github.com/Andy-0414/web_table_game#readme",
+  "dependencies": {
+    "express": "^4.16.4"
+  }
+}

@@ -127,7 +127,6 @@ var table;
         constructor(option, count, x, y) {
             super(option, x, y)
             option.stack = option.stack || []
-            console.log(option.stack)
             this.stack = (option.stack.length > 0 ? option.stack.map((e) => new Prop(e)) : null) || [...Array(count).keys()].map(() => new Prop(option))
 
             this.prop = document.createElement('div')
@@ -155,7 +154,6 @@ var table;
         }
         popProp() {
             var con = this.stack.pop()
-            console.log(con)
             con.setPos(this.x, this.y)
             this.setState()
             return con.getElement()
@@ -225,17 +223,14 @@ var table;
         createProp(option, spawnX, spawnY) {
             var prop = new Prop(option, spawnX, spawnY)
             this.props.push(prop);
+            this.appendTable(prop.getElement())
             return prop
         }
         createProps(option, count, spawnX, spawnY) {
             var prop = new Props(option, count, spawnX, spawnY)
             this.props.push(prop)
+            this.appendTable(prop.getElement())
             return prop
-        }
-        render() {
-            this.props.forEach(x => {
-                this.table.appendChild(x.getElement())
-            })
         }
         appendTable(ele) {
             this.props.push(ele.controller)
@@ -349,4 +344,3 @@ table.createProps({
         image: "./assets/chip.png"
     },
 }, 10, 400, 400)
-table.render()
