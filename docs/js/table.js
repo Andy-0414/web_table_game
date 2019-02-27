@@ -313,6 +313,32 @@ class TableTop {
                 text: "칩",
                 color: "green",
                 onClick: () => { this.requestProp('CHIP') }
+            },
+            {
+                text: "바둑판",
+                color: "green",
+                onClick: () => { this.requestProp('GO_PLATE') }
+            },
+            {
+                text: "바둑알 흰색",
+                color: "green",
+                onClick: () => { this.requestProp('GO_WHITE') }
+            },
+            {
+                text: "바둑알 검은색",
+                color: "green",
+                onClick: () => { this.requestProp('GO_BLACK') }
+            },
+            {
+                text: "체스판",
+                color: "green",
+                onClick: () => { this.requestProp('CHESS_PLATE') }
+            },
+            ,
+            {
+                text: "체스 말",
+                color: "green",
+                onClick: () => { this.requestProp('CHESS_PIERCE') }
             }
         ]
 
@@ -382,6 +408,7 @@ class TableTop {
         return this.clearTableToClient()
     }
     clearTableToClient() {
+        this.currentId = 0;
         this.props = []
         this.table.innerHTML = '';
         return true

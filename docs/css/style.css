@@ -5,7 +5,9 @@
 
     user-select: none;
 }
-
+body{
+    overflow: hidden;
+}
 #table{
     position: relative;
 

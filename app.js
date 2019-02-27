@@ -67,11 +67,11 @@ io.on('connection', (socket)=>{
             }
         })
         .catch(err =>{
-            console.log(err)
+            console.log("NO DATA")
         })
     })
 });
 
-http.listen(3010, () => {
+http.listen(3000, () => {
     console.log("server open");
 })

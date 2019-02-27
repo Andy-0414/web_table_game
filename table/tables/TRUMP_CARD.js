@@ -6,6 +6,9 @@ module.exports = {
             for (num of ['ace',2,3,4,5,6,7,8,9,10,'jack','queen','king']){
                 cardList.push(
                     {
+                        width: 100,
+                        height: 150,
+
                         class: 'card',
                         reverse: true,
                         front: {
@@ -21,6 +24,8 @@ module.exports = {
         }
         return {
             option : {
+                width: 100,
+                height: 150,
                 stack: cardList
             },
             x : 200,
