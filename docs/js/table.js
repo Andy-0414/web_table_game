@@ -264,6 +264,7 @@ class Props extends MoveAbleProp {
     }
     setStack(stack) {
         this.option.stack = stack
+        this.chkStack()
         this.setState()
     }
     setState() {
@@ -277,8 +278,9 @@ class Props extends MoveAbleProp {
     popProp(x,y) {
         var data = this.option.stack.pop()
         var prop = this.table.createProp(data, x || this.x, y || this.y).prop
-        this.setState()
+        this.changeProp()
         this.chkStack()
+        this.setState()
 
         return prop
     }
@@ -555,7 +557,7 @@ class TableTop {
             data.option.x = data.x
             data.option.y = data.y
             target.optionSetting(data.option)
-            if (data.option.stack) {
+            if (data.option.stack && (target ? target.stack : false) ) {
                 target.setStack(data.option.stack)
             }
             target.render()
