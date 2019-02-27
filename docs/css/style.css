@@ -37,3 +37,31 @@
     transform-origin: center;
     background-repeat: no-repeat;
 }
+.contextMenu{
+    transition: 0.5s;
+
+    position: absolute;
+
+    display: flex;
+    flex-direction: column;
+
+    width: 200px;
+    height: auto;
+
+    padding: 10px;
+
+    background-color: white;
+
+    border-radius: 5px
+}
+.contextMenu p{
+    text-align: center;
+    width: 100%;
+
+    padding: 5px;
+
+    border-bottom: 1px solid #EEEEEE;
+}
+.contextMenu p:last-child{
+    border-bottom: none;
+}

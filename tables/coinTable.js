@@ -1,5 +1,5 @@
 module.exports = {
-    getCoin() {
+    getCoin(count = 10) {
         return {
             option : {
                 class: 'coin',
@@ -14,12 +14,12 @@ module.exports = {
                     image: `./assets/coin.png`
                 },
             },
-            count : 50,
+            count : count,
             x: 400,
             y: 400,
         }
     },
-    getChip(){
+    getChip(count = 10){
         return {
             option: {
                 class: 'coin',
@@ -34,7 +34,7 @@ module.exports = {
                     image: `./assets/chip.png`
                 },
             },
-            count: 5,
+            count: count,
             x: 600,
             y: 400,
         }
