@@ -9,10 +9,10 @@ module.exports = {
                 height: 800,
                 reverse: false,
                 front: {
-                    image: `./assets/chess/chess_plate.png`
+                    image: `./assets/chess/chess_plate.jpg`
                 },
                 back: {
-                    image: `./assets/chess/chess_plate.png`
+                    image: `./assets/chess/chess_plate.jpg`
                 },
                 style: {}
             },
