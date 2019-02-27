@@ -1,5 +1,6 @@
 module.exports = {
-    getTrumpCard(){
+    primalName : "TRUMP_CARD",
+    getData(){
         var cardList = [];
         for(shape of ['clubs','diamonds','hearts','spades']){
             for (num of ['ace',2,3,4,5,6,7,8,9,10,'jack','queen','king']){
@@ -26,5 +27,4 @@ module.exports = {
             y : 200,
         }
     }
-
 }

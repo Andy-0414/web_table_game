@@ -3,28 +3,31 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
-var trumpTable = require('./tables/trumpTable')
-var coinTable = require('./tables/coinTable')
+var TableManager = require('./table/findTableModule')
 
 app.use(express.static('docs'))
 
 app.get('/',(req,res)=>{
     res.sendFile(__dirname+'/index.html')
 })
-var tableState = [
-    trumpTable.getTrumpCard(),
-    coinTable.getCoin(),
-    coinTable.getChip()
-]
+
+function chkToMulti(x){
+    return x.count || (x.option ? x.option.stack : false)
+}
+
+var tableState = []
 io.on('connection', (socket)=>{
     var changeTableState = (data) => {
         tableState[tableState.findIndex(x => x._id == data._id)] = data
     }
-    socket.emit('clearTable', true)
+    socket.on('clearTable',data=>{
+        tableState = []
+        console.log("CLEAR")
+        socket.broadcast.emit('clearTable', true)
+    })
     tableState.forEach((x,idx)=>{
         tableState[idx]._id = idx
-
-        if(x.count || (x.option ? x.option.stack : false)){
+        if (chkToMulti(x)){
             socket.emit('createProps',x)
         }
         else{
@@ -50,14 +53,26 @@ io.on('connection', (socket)=>{
         tableState.splice(tableState.findIndex(x => x._id == data._id), 1)
         socket.broadcast.emit('removeProp', data)
     })
-    
+    socket.on('createPropToServer',data=>{
+        TableManager.getRequestProp(data.primalName)
+        .then(propOriginal=>{
+            propOriginal._id = data._id
+            propOriginal.x = data.x || propOriginal.x
+            propOriginal.y = data.y || propOriginal.y
+            tableState.push(propOriginal)
+            if (chkToMulti(propOriginal)) {
+                io.sockets.emit('createProps', propOriginal)
+            }
+            else {
+                io.sockets.emit('createProp', propOriginal)
+            }
+        })
+        .catch(err =>{
+            console.log(err)
+        })
+    })
 });
 
-http.listen(3000, () => {
+http.listen(3010, () => {
     console.log("server open");
-    var tableState = [
-        trumpTable.getTrumpCard(),
-        coinTable.getCoin(),
-        coinTable.getChip()
-    ]
 })
