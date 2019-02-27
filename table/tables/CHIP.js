@@ -14,6 +14,7 @@ module.exports = {
                 back: {
                     image: `./assets/coins/chip.png`
                 },
+                style: {}
             },
             count: count,
             x: 600,

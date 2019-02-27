@@ -14,6 +14,7 @@ module.exports = {
                 back: {
                     image: `./assets/coins/coin.png`
                 },
+                style: {}
             },
             count : count,
             x: 400,

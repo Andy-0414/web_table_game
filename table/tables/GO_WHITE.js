@@ -14,6 +14,7 @@ module.exports = {
                 back: {
                     image: `./assets/go/go_white.png`
                 },
+                style: {}
             },
             count: count,
             x: 600,

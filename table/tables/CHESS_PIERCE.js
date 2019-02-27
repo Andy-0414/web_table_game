@@ -19,6 +19,7 @@ module.exports = {
                             back: {
                                 image: `./assets/chess/${cls[idx]}_${color}.png`
                             },
+                            style: {}
                         },
                     )
                 }

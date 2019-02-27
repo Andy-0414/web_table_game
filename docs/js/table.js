@@ -368,6 +368,7 @@ class TableTop {
                     case 1:
                         var data = target.controller.popProp()
                         moveProp(data);
+                        target.controller.detach()
                         socket.emit('changeProp', TableTop.compressPropData(target.controller))
                         break;
                 }

@@ -14,6 +14,7 @@ module.exports = {
                 back: {
                     image: `./assets/go/go_plate.png`
                 },
+                style: {}
             },
             x: 600,
             y: 400,
