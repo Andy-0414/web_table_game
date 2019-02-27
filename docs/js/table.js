@@ -517,6 +517,27 @@ class TableTop {
             this.isContextMenu = false
         }
     }
+    cursorRender(data) {
+        [...document.getElementsByClassName('cursorEffect')].forEach((element, index) => {
+            element.parentElement.removeChild(element);
+        })
+
+        let effect = document.createElement('div')
+        effect.className = 'cursorEffect'
+        effect.draggable = false
+        effect.controller = this
+        effect.style.left = data.x + "px"
+        effect.style.top = data.y + "px"
+        
+        let color = 0;
+        for (let i = 0; i < data.id.length; i++)
+            color += data.id.charCodeAt(i);
+        color = color % 0x1000000;
+        effect.style.borderColor = "#" + color.toString(16);
+        effect.style.textShadowColor =  "#" + color.toString(16);
+
+        table.appendTable(effect)
+    }
 
     static compressPropData(prop) {
         var out = {
@@ -533,6 +554,9 @@ class TableTop {
         var getTarget = (id) => this.props[this.props.findIndex(x => x._id == id)]
         socket.on('clearTable', data => {
             this.clearTableToClient()
+        })
+        socket.on('cursorMove', data => {
+            this.cursorRender(data);
         })
         socket.on('decreaseZindexAll', data => {
             this.decreaseZindexAll()
@@ -565,3 +589,7 @@ class TableTop {
         })
     }
 }
+
+setInterval(() => {
+    socket.emit('cursorMove', {x:table.cursorX, y:table.cursorY, id:socket.id})
+}, 0)

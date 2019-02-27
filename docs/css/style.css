@@ -19,6 +19,28 @@ body{
     overflow: hidden;
 }
 
+.cursorEffect{
+    position: absolute;
+    font-size: 1px;
+
+    display: flex;
+    justify-content: flex-end;
+    text-align: center;
+
+    width: 1px;
+    height: 1px;
+    z-index: 1001;
+
+    border-style: solid;
+    border-color: red;
+    border-radius: 100%;
+    border-width: 3px;
+
+    box-shadow: 0px 0px 15px red;
+
+    transition: ease-out 0.2s;
+    transform-origin: center;
+}
 .prop,.props{
     cursor: grab;
 
