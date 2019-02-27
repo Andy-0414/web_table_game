@@ -12,7 +12,6 @@ class MoveAbleProp {
         this.option.zIndex = 0
 
         this.active = false
-        this.option.static = false
 
         this.table = table
 
