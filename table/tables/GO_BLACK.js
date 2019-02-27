@@ -5,8 +5,8 @@ module.exports = {
             option: {
                 class: 'go_black',
 
-                width: 50,
-                height: 50,
+                width: 40,
+                height: 40,
                 reverse: false,
                 front: {
                     image: `./assets/go/go_black.png`

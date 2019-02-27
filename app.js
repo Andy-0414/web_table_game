@@ -45,6 +45,7 @@ io.on('connection', (socket)=>{
         socket.broadcast.emit('reverse', data)
     })
     socket.on('changeProp',data=>{
+        console.log(data.option.zIndex)
         changeTableState(data)
         socket.broadcast.emit('changeProp', data)
     })
@@ -72,6 +73,6 @@ io.on('connection', (socket)=>{
     })
 });
 
-http.listen(3000, () => {
+http.listen(3010, () => {
     console.log("server open");
 })

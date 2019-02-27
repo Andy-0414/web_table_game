@@ -9,9 +9,10 @@ class MoveAbleProp {
         this.x = x || 0
         this.y = y || 0
 
-        this.zIndex = 0
+        this.option.zIndex = 0
 
-        this.active = false;
+        this.active = false
+        this.option.static = false
 
         this.table = table
 
@@ -23,7 +24,28 @@ class MoveAbleProp {
                 text: "삭제",
                 color: "red",
                 onClick: () => { this.removeThis() }
-            }
+            },
+            {
+                text: `고정 ON/OFF`,
+                color: "blue",
+                onClick: () => { this.toggleStatic() }
+            },
+            {
+                text: "맨 앞으로",
+                color: "blue",
+                onClick: () => {
+                    this.setZindex(1000)
+                    this.changeProp()
+                }
+            },
+            {
+                text: "맨 뒤로",
+                color: "blue",
+                onClick: () => {
+                    this.setZindex(0)
+                    this.changeProp()
+                }
+            },
         ]
     }
     static defaultOptionFilter(option) {
@@ -34,6 +56,8 @@ class MoveAbleProp {
             width: option.width || 200,
             height: option.height || 300,
             reverse: option.reverse || false,
+            static: option.static || false,
+            zIndex: option.zIndex || 0,
             front: option.front || {
                 image: './assets/cards/back.png'
             },
@@ -44,7 +68,7 @@ class MoveAbleProp {
                 cursor: "grab",
                 boxShadow: "drop-shadow(0px 1px 1px #00000055)",
                 backgroundColor: option.style.backgroundColor || "",
-                borderRadius: option.style.borderRadius || 0
+                borderRadius: option.style.borderRadius || 0,
             },
             transform: {
                 translateY: 0,
@@ -63,6 +87,7 @@ class MoveAbleProp {
         if (this.active) this.attach()
         else this.detach()
 
+        this.setZindex(this.option.zIndex)
         this.setPosition()
         this.setStyle()
         this.setTransform()
@@ -102,12 +127,12 @@ class MoveAbleProp {
         this.setPosition()
     }
     setZindex(num) {
-        this.zIndex = num
-        this.prop.style.zIndex = this.zIndex
+        this.option.zIndex = num
+        this.prop.style.zIndex = this.option.zIndex
     }
     decreaseZindex() {
-        if (this.zIndex > 0) this.zIndex--
-        this.prop.style.zIndex = this.zIndex
+        if (this.option.zIndex > 0) this.option.zIndex--
+        this.prop.style.zIndex = this.option.zIndex
     }
     setStyle() {
         this.prop.style.filter = this.option.style.boxShadow
@@ -122,9 +147,16 @@ class MoveAbleProp {
             rotateY(${this.option.reverse ? 180 : 0}deg) 
             scaleX(${this.option.reverse ? -1 : 1})`
     }
-
+    toggleStatic(){
+        this.option.static = !this.option.static
+        this.changeProp()
+    }
     removeThis() {
         this.table.removeTable(this.prop)
+    }
+
+    changeProp(){
+        socket.emit('changeProp', TableTop.compressPropData(this.prop.controller))
     }
 
     getContextMenu() {
@@ -135,6 +167,9 @@ class MoveAbleProp {
     }
     isActive() {
         return this.active
+    }
+    isStatic(){
+        return this.option.static
     }
 }
 class Prop extends MoveAbleProp {
@@ -153,7 +188,9 @@ class Prop extends MoveAbleProp {
         this.prop.style.backgroundSize = 'contain'
 
         this.prop.addEventListener('contextmenu', () => {
-            this.reverse()
+            if(!this.isStatic()){
+                this.reverse()
+            }
         })
 
         this.prop.style.left = this.x
@@ -351,12 +388,12 @@ class TableTop {
         this.table.addEventListener('mousedown', (e) => {
             this.closeContextMenu()
             var moveProp = (prop) => {
-                if (!prop.controller.isActive()) {
+                if (!prop.controller.isActive() && !prop.controller.isStatic()) {
                     this.prop = prop
                     this.decreaseZindexAll()
                     this.prop.controller.attach()
                     socket.emit('decreaseZindexAll', true)
-                    socket.emit('changeProp', TableTop.compressPropData(this.prop.controller))
+                    this.prop.controller.changeProp()
                 }
             }
             var target = e.target
@@ -369,7 +406,7 @@ class TableTop {
                         var data = target.controller.popProp()
                         moveProp(data);
                         target.controller.detach()
-                        socket.emit('changeProp', TableTop.compressPropData(target.controller))
+                        target.controller.changeProp()
                         break;
                 }
             }
@@ -380,16 +417,16 @@ class TableTop {
         this.table.addEventListener('mouseup', (e) => {
             if (this.prop) {
                 this.prop.controller.detach()
-                socket.emit('changeProp', TableTop.compressPropData(this.prop.controller))
+                this.prop.controller.changeProp()
                 this.prop = null
             }
         })
         this.table.addEventListener('mousemove', (e) => {
-            this.cursorX = e.clientX
-            this.cursorY = e.clientY
+            this.cursorX = e.clientX//parseInt(e.clientX/50)*50
+            this.cursorY = e.clientY//parseInt(e.clientY/50)*50
             if (this.prop) {
                 this.prop.controller.setPos(this.cursorX, this.cursorY)
-                socket.emit('changeProp', TableTop.compressPropData(this.prop.controller))
+                this.prop.controller.changeProp()
             }
         })
     }
