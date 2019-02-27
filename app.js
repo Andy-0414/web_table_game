@@ -22,7 +22,6 @@ io.on('connection', (socket)=>{
     }
     socket.on('clearTable',data=>{
         tableState = []
-        console.log("CLEAR")
         socket.broadcast.emit('clearTable', true)
     })
     tableState.forEach((x,idx)=>{

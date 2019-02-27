@@ -353,7 +353,6 @@ class TableTop {
         this.table.addEventListener('mouseup', (e) => {
             if (this.prop) {
                 this.prop.controller.detach()
-                //console.log(this.props.filter(x => x.option.class == this.prop.controller.option.class))
                 socket.emit('changeProp', TableTop.compressPropData(this.prop.controller))
                 this.prop = null
             }
@@ -469,7 +468,6 @@ class TableTop {
     networtInit() {
         var getTarget = (id) => this.props[this.props.findIndex(x => x._id == id)]
         socket.on('clearTable', data => {
-            console.log("CLEAR")
             this.clearTableToClient()
         })
         socket.on('decreaseZindexAll', data => {
