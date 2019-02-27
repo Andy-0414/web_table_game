@@ -372,11 +372,15 @@ class TableTop {
                 color: "green",
                 onClick: () => { this.requestProp('CHESS_PLATE') }
             },
-            ,
             {
                 text: "체스 말",
                 color: "green",
                 onClick: () => { this.requestProp('CHESS_PIERCE') }
+            },
+            {
+                text: "선린",
+                color: "green",
+                onClick: () => { this.requestProp('SUNRIN') }
             }
         ]
 
@@ -557,7 +561,7 @@ class TableTop {
             data.option.x = data.x
             data.option.y = data.y
             target.optionSetting(data.option)
-            if (data.option.stack && (target ? target.stack : false) ) {
+            if (data.option.stack && target instanceof Props ) {
                 target.setStack(data.option.stack)
             }
             target.render()
