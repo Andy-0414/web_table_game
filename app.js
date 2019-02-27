@@ -33,6 +33,9 @@ io.on('connection', (socket)=>{
             socket.emit('createProp',x)
         }
     })
+    socket.on('cursorMove', data => {
+        socket.broadcast.emit('cursorMove', data)
+    })
     socket.on('decreaseZindexAll',data=>{
         socket.broadcast.emit('decreaseZindexAll',data)
     })
