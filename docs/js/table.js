@@ -278,7 +278,6 @@ class Props extends MoveAbleProp {
     popProp(x,y) {
         var data = this.option.stack.pop()
         var prop = this.table.createProp(data, x || this.x, y || this.y).prop
-        this.changeProp()
         this.chkStack()
         this.setState()
 
@@ -309,6 +308,7 @@ class Props extends MoveAbleProp {
             x.reverse = !x.reverse
         })
         this.setState()
+        this.changeProp()
     }
     chkStack() {
         if (this.option.stack.length <= 0)

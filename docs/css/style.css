@@ -84,7 +84,7 @@ body{
     border-bottom: none;
 }
 
-/* #roomList{
+#roomList{
     position: fixed;
 
     display: none;
@@ -123,4 +123,4 @@ body{
 }
 #roomList li:hover{
     background-color: #EEEEEE;
-} */
+}
