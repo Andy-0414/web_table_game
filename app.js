@@ -15,6 +15,19 @@ function chkToMulti(x){
     return x.count || (x.option ? x.option.stack : false)
 }
 
+var TableList = [
+    {
+        roomName : "Hello",
+        userList : new Set(),
+        tableState : []
+    },
+    {
+        roomName: "World!",
+        userList: new Set(),
+        tableState: []
+    },
+]
+
 var tableState = []
 io.on('connection', (socket)=>{
     var changeTableState = (data) => {

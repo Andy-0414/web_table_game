@@ -427,8 +427,8 @@ class TableTop {
             }
         })
         this.table.addEventListener('mousemove', (e) => {
-            this.cursorX = e.clientX//parseInt(e.clientX/50)*50
-            this.cursorY = e.clientY//parseInt(e.clientY/50)*50
+            this.cursorX = e.clientX - this.table.offsetLeft
+            this.cursorY = e.clientY - this.table.offsetTop
             if (this.prop) {
                 this.prop.controller.setPos(this.cursorX, this.cursorY)
                 this.prop.controller.changeProp()
@@ -454,6 +454,8 @@ class TableTop {
         this.currentId = 0;
         this.props = []
         this.table.innerHTML = '';
+        this.isContextMenu = false
+        this.contextmenu = null
         return true
     }
     decreaseZindexAll() {
@@ -505,20 +507,20 @@ class TableTop {
                     var content = document.createElement('p')
                     content.innerText = x.text
                     content.style.color = x.color
-                    content.addEventListener('click', (e) => {
+                    content.addEventListener('mousedown', (e) => {
                         x.onClick()
                         this.closeContextMenu()
                     })
                     contextmenu.appendChild(content)
                 })
                 this.contextmenu = contextmenu
-                document.body.appendChild(contextmenu)
+                this.table.appendChild(contextmenu)
 
         }
     }
     closeContextMenu() {
         if(this.contextmenu && this.isContextMenu){
-            document.body.removeChild(this.contextmenu)
+            this.table.removeChild(this.contextmenu)
             this.contextmenu = null
             this.isContextMenu = false
         }
