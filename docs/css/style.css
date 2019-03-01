@@ -4,6 +4,8 @@
     box-sizing: border-box;
 
     user-select: none;
+
+    font-family: 'NanumSquareR'
 }
 ul,li{
     list-style: none;
@@ -26,7 +28,7 @@ body{
     width: 1600px;
     height: 900px;
 
-    background-color: rgb(25, 124, 0);
+    background-color: rgb(0, 128, 0);
 
     overflow: hidden;
 }
@@ -62,26 +64,29 @@ body{
     width: 200px;
     height: auto;
 
-    padding: 10px;
+    padding: 10px 0;
 
     background-color: white;
 
     border-radius: 5px;
 
-    box-shadow: 0px 2px 1px 1px #000000AA;
-
     z-index: 2000;
 }
 .contextMenu p{
+    cursor: pointer;
+    
     text-align: center;
     width: 100%;
 
-    padding: 5px;
+    padding: 10px;
 
     border-bottom: 1px solid #EEEEEE;
 }
 .contextMenu p:last-child{
     border-bottom: none;
+}
+.contextMenu p:hover{
+    background-color: #EEEEEE;
 }
 
 #roomList{

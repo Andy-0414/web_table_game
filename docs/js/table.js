@@ -145,7 +145,7 @@ class MoveAbleProp {
             rotateY(${this.option.reverse ? 180 : 0}deg) 
             scaleX(${this.option.reverse ? -1 : 1})`
     }
-    toggleStatic(){
+    toggleStatic() {
         this.option.static = !this.option.static
         this.changeProp()
     }
@@ -153,7 +153,7 @@ class MoveAbleProp {
         this.table.removeTable(this.prop)
     }
 
-    changeProp(){
+    changeProp() {
         socket.emit('changeProp', TableTop.compressPropData(this.prop.controller))
     }
 
@@ -166,7 +166,7 @@ class MoveAbleProp {
     isActive() {
         return this.active
     }
-    isStatic(){
+    isStatic() {
         return this.option.static
     }
 }
@@ -186,7 +186,7 @@ class Prop extends MoveAbleProp {
         this.prop.style.backgroundSize = 'contain'
 
         this.prop.addEventListener('contextmenu', () => {
-            if(!this.isStatic()){
+            if (!this.isStatic()) {
                 this.reverse()
             }
         })
@@ -274,13 +274,14 @@ class Props extends MoveAbleProp {
         this.prop.innerText = ` x${this.option.stack.length}`
         this.prop.style.borderRadius = con.style.borderRadius + "px"
     }
-    popProp(x,y) {
+    popProp(isAttach,x, y) {
         var data = this.option.stack.pop()
-        var prop = this.table.createProp(data, x || this.x, y || this.y).prop
-        this.chkStack()
+        data.isAttach = isAttach || 0;
+        this.table.createProp(data, x || this.x, y || this.y)
         this.setState()
 
-        return prop
+        //return prop
+        return data
     }
     pushProp(prop) {
         this.option.stack.push(prop)
@@ -296,22 +297,24 @@ class Props extends MoveAbleProp {
         this.setState()
         socket.emit('changeProp', TableTop.compressPropData(this))
     }
-    unfoldStack(){
+    unfoldStack() {
         var len = this.option.stack.length
         for (let i = 0; i < len; i++) {
-            this.popProp(this.x + i * 20, this.y)
+            this.popProp(0,this.x + i * 20, this.y)
         }
     }
-    reverseAll(){
-        this.option.stack.forEach(x=>{
+    reverseAll() {
+        this.option.stack.forEach(x => {
             x.reverse = !x.reverse
         })
         this.setState()
         this.changeProp()
     }
     chkStack() {
-        if (this.option.stack.length <= 0)
+        if (this.option.stack.length <= 1){
+            this.popProp()
             this.removeThis()
+        }
     }
 }
 
@@ -326,66 +329,16 @@ class TableTop {
         this.cursorX;
         this.cursorY;
 
-        this.currentId = 0;
 
         this.contextmenu = null
         this.isContextMenu = false
+        this.serverProps = []
         this.contextMenuContent = [
             {
                 text: "모두 삭제",
                 color: "red",
                 onClick: () => { this.clearTable() }
             },
-            {
-                text: "트럼프",
-                color: "green",
-                onClick: () => { this.requestProp('TRUMP_CARD') }
-            },
-            {
-                text: "코인",
-                color: "green",
-                onClick: () => { this.requestProp('BIT_COIN') }
-            },
-            {
-                text: "칩",
-                color: "green",
-                onClick: () => { this.requestProp('CHIP') }
-            },
-            {
-                text: "바둑판",
-                color: "green",
-                onClick: () => { this.requestProp('GO_PLATE') }
-            },
-            {
-                text: "바둑알 흰색",
-                color: "green",
-                onClick: () => { this.requestProp('GO_WHITE') }
-            },
-            {
-                text: "바둑알 검은색",
-                color: "green",
-                onClick: () => { this.requestProp('GO_BLACK') }
-            },
-            {
-                text: "체스판",
-                color: "green",
-                onClick: () => { this.requestProp('CHESS_PLATE') }
-            },
-            {
-                text: "체스 말",
-                color: "green",
-                onClick: () => { this.requestProp('CHESS_PIERCE') }
-            },
-            {
-                text: "선린",
-                color: "green",
-                onClick: () => { this.requestProp('SUNRIN') }
-            },
-            {
-                text: "RTX",
-                color: "green",
-                onClick: () => { this.requestProp('RTX') }
-            }
         ]
 
         this.networtInit()
@@ -396,31 +349,22 @@ class TableTop {
         })
         this.table.addEventListener('mousedown', (e) => {
             this.closeContextMenu()
-            var moveProp = (prop) => {
-                if (!prop.controller.isActive() && !prop.controller.isStatic()) {
-                    this.prop = prop
-                    this.decreaseZindexAll()
-                    this.prop.controller.attach()
-                    socket.emit('decreaseZindexAll', true)
-                    this.prop.controller.changeProp()
-                }
-            }
+
             var target = e.target
             if (target.classList.contains('props')) {
                 switch (e.which) {
                     case 3:
-                        moveProp(target)
+                        this.moveProp(target)
                         break;
                     case 1:
-                        var data = target.controller.popProp()
-                        moveProp(data);
+                        target.controller.popProp(1)
                         target.controller.detach()
                         target.controller.changeProp()
                         break;
                 }
             }
             else if (target.classList.contains('prop')) {
-                moveProp(target)
+                this.moveProp(target)
             }
         })
         this.table.addEventListener('mouseup', (e) => {
@@ -439,23 +383,26 @@ class TableTop {
             }
         })
     }
+    moveProp(prop) {
+        if (!prop.controller.isActive() && !prop.controller.isStatic()) {
+            this.prop = prop
+            this.decreaseZindexAll()
+            this.prop.controller.attach()
+            socket.emit('decreaseZindexAll', true)
+            this.prop.controller.changeProp()
+        }
+    }
+    findPropByID(_id) {
+        return this.props.filter(x => x._id == _id)[0]
+    }
     getContextMenu() {
         return this.contextMenuContent
     }
-    requestProp(propPrimalName,x,y){
-        socket.emit('createPropToServer',{
-            _id: this.currentId,
-            primalName: propPrimalName,
-            x : x || this.cursorX,
-            y : y || this.cursorY
-        })
-    }
-    clearTable(){
-        socket.emit('clearTable', true)        
+    clearTable() {
+        socket.emit('clearTable', true)
         return this.clearTableToClient()
     }
     clearTableToClient() {
-        this.currentId = 0;
         this.props = []
         this.table.innerHTML = '';
         this.isContextMenu = false
@@ -468,20 +415,18 @@ class TableTop {
         })
     }
     createProp(option, x, y) {
-        socket.emit('createProp', { _id: this.currentId, option, x, y })
-        return this.createPropToClient(option, x, y)
+        socket.emit('createProp', {option, x, y, isAttach: option.isAttach })
     }
-    createPropToClient(option, x, y) {
-        var prop = new Prop(this, this.currentId++, option, x, y)
+    createPropToClient(_id,option, x, y) {
+        var prop = new Prop(this, _id, option, x, y)
         this.appendTable(prop.getElement())
         return prop
     }
     createProps(option, count, x, y) {
-        socket.emit('createProps', { _id: this.currentId, option, count, x, y })
-        return this.createPropsToClient(option, count, x, y)
+        socket.emit('createProps', { option, count, x, y })
     }
-    createPropsToClient(option, count, x, y) {
-        var prop = new Props(this, this.currentId++, option, count, x, y)
+    createPropsToClient(_id,option, count, x, y) {
+        var prop = new Props(this, _id, option, count, x, y)
         this.appendTable(prop.getElement())
         return prop
     }
@@ -492,7 +437,6 @@ class TableTop {
     }
     removeTable(ele) {
         socket.emit('removeProp', { _id: ele.controller._id })
-        this.removeTableToClient(ele.controller)
     }
     removeTableToClient(con) {
         this.table.removeChild(this.props.splice(this.props.findIndex(x => x._id == con._id), 1)[0].prop)
@@ -500,30 +444,30 @@ class TableTop {
 
     showContextMenu(t) {
         if (!this.isContextMenu) {
-                var target = t.controller
-                this.isContextMenu = true
-                var contextmenu = document.createElement('div')
-                contextmenu.classList.add('contextMenu')
-                contextmenu.style.top = this.cursorY + "px"
-                contextmenu.style.left = this.cursorX + "px"
+            var target = t.controller
+            this.isContextMenu = true
+            var contextmenu = document.createElement('div')
+            contextmenu.classList.add('contextMenu')
+            contextmenu.style.top = this.cursorY + "px"
+            contextmenu.style.left = this.cursorX + "px"
 
-                target.getContextMenu().forEach(x => {
-                    var content = document.createElement('p')
-                    content.innerText = x.text
-                    content.style.color = x.color
-                    content.addEventListener('mousedown', (e) => {
-                        x.onClick()
-                        this.closeContextMenu()
-                    })
-                    contextmenu.appendChild(content)
+            target.getContextMenu().forEach(x => {
+                var content = document.createElement('p')
+                content.innerText = x.text
+                content.style.color = x.color
+                content.addEventListener('mousedown', (e) => {
+                    x.onClick()
+                    this.closeContextMenu()
                 })
-                this.contextmenu = contextmenu
-                this.table.appendChild(contextmenu)
+                contextmenu.appendChild(content)
+            })
+            this.contextmenu = contextmenu
+            this.table.appendChild(contextmenu)
 
         }
     }
     closeContextMenu() {
-        if(this.contextmenu && this.isContextMenu){
+        if (this.contextmenu && this.isContextMenu) {
             this.table.removeChild(this.contextmenu)
             this.contextmenu = null
             this.isContextMenu = false
@@ -550,10 +494,10 @@ class TableTop {
             this.decreaseZindexAll()
         })
         socket.on('createProp', data => {
-            table.createPropToClient(data.option, data.x, data.y)
+            table.createPropToClient(data._id,data.option, data.x, data.y)
         })
         socket.on('createProps', data => {
-            table.createPropsToClient(data.option, data.count || null, data.x, data.y)
+            table.createPropsToClient(data._id,data.option, data.count || null, data.x, data.y)
         })
         socket.on('reverse', data => {
             var target = getTarget(data._id)
@@ -567,13 +511,29 @@ class TableTop {
             data.option.x = data.x
             data.option.y = data.y
             target.optionSetting(data.option)
-            if (data.option.stack && target instanceof Props ) {
+            if (target instanceof Props) {
                 target.setStack(data.option.stack)
             }
             target.render()
         })
         socket.on('removeProp', data => {
             this.removeTableToClient(data)
+        })
+        socket.on('serverProps', data => {
+            this.serverProps = data
+            this.serverProps.forEach(x => {
+                this.contextMenuContent.push(
+                    {
+                        text: `생성 : ${x.primalName}`,
+                        color: "green",
+                        onClick: () => { x.isProps ? this.createProps(x.option, x.count, x.x, x.y) : this.createProps(x.option, x.x, x.y) }
+                    }
+                )
+            })
+        })
+        socket.on('attachProp', data => {
+            this.prop = this.findPropByID(data).prop
+            this.moveProp(this.prop)
         })
     }
 }
