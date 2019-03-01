@@ -332,7 +332,7 @@ class TableTop {
         this.isContextMenu = false
         this.contextMenuContent = [
             {
-                text: "모두 제거",
+                text: "모두 삭제",
                 color: "red",
                 onClick: () => { this.clearTable() }
             },
@@ -380,6 +380,11 @@ class TableTop {
                 text: "선린",
                 color: "green",
                 onClick: () => { this.requestProp('SUNRIN') }
+            },
+            {
+                text: "RTX",
+                color: "green",
+                onClick: () => { this.requestProp('RTX') }
             }
         ]
 

@@ -7,19 +7,19 @@ var TableManager = require('./table/findTableModule')
 
 app.use(express.static('docs'))
 
-app.get('/',(req,res)=>{
-    res.sendFile(__dirname+'/index.html')
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/index.html')
 })
 
-function chkToMulti(x){
+function chkToMulti(x) {
     return x.count || (x.option ? x.option.stack : false)
 }
 
 var TableList = [
     {
-        roomName : "Hello",
-        userList : new Set(),
-        tableState : []
+        roomName: "Hello",
+        userList: new Set(),
+        tableState: []
     },
     {
         roomName: "World!",
@@ -29,11 +29,12 @@ var TableList = [
 ]
 
 var tableState = []
-io.on('connection', (socket)=>{
-    var findRoomIndex = (data)=> TableList.findIndex(x=> x.roomName == data)
+io.on('connection', (socket) => {
+    var findRoomIndex = (data) => TableList.findIndex(x => x.roomName == data)
     var getThisRoomName = (sk) => Object.keys(sk.rooms)[0]
     var getThisRoomIndex = () => findRoomIndex(getThisRoomName(socket))
-    var sendRoomList = ()=>{
+
+    var sendRoomList = () => {
         io.sockets.emit('roomList', TableList.map(x => {
             return {
                 roomName: x.roomName,
@@ -42,10 +43,10 @@ io.on('connection', (socket)=>{
         }))
     }
     sendRoomList()
-    socket.on('joinRoom',data=>{
+    socket.on('joinRoom', data => {
         var currentRoomIndex = getThisRoomIndex()
         var nextRoomIndex = findRoomIndex(data.roomName)
-        if (TableList[nextRoomIndex].userList.size < 6){
+        if (TableList[nextRoomIndex].userList.size < 6) {
             if (currentRoomIndex != -1) {
                 TableList[currentRoomIndex].userList.delete(socket.id)
             }
@@ -67,51 +68,75 @@ io.on('connection', (socket)=>{
 
 
     var changeTableState = (data) => {
-        TableList[getThisRoomIndex()].tableState[TableList[getThisRoomIndex()].tableState.findIndex(x => x._id == data._id)] = data
+        var currentRoomIndex = getThisRoomIndex()
+        if (currentRoomIndex != -1) {
+            TableList[currentRoomIndex].tableState[TableList[currentRoomIndex].tableState.findIndex(x => x._id == data._id)] = data
+        }
     }
-    socket.on('clearTable',data=>{
-        TableList[getThisRoomIndex()].tableState = []
-        socket.broadcast.to(getThisRoomName(socket)).emit('clearTable', true)
+    socket.on('clearTable', data => {
+        var currentRoomIndex = getThisRoomIndex()
+        if (currentRoomIndex != -1) {
+
+            TableList[currentRoomIndex].tableState = []
+            socket.broadcast.to(getThisRoomName(socket)).emit('clearTable', true)
+        }
     })
-    socket.on('decreaseZindexAll',data=>{
-        socket.broadcast.to(getThisRoomName(socket)).emit('decreaseZindexAll',data)
+    socket.on('decreaseZindexAll', data => {
+        socket.broadcast.to(getThisRoomName(socket)).emit('decreaseZindexAll', data)
     })
-    socket.on('createProp',data=>{
-        TableList[getThisRoomIndex()].tableState.push(data)
-        socket.broadcast.to(getThisRoomName(socket)).emit('createProp',data)
+    socket.on('createProp', data => {
+        var currentRoomIndex = getThisRoomIndex()
+        if (currentRoomIndex != -1) {
+
+            TableList[currentRoomIndex].tableState.push(data)
+            socket.broadcast.to(getThisRoomName(socket)).emit('createProp', data)
+        }
     })
     socket.on('reverse', data => {
-        tableState[tableState.findIndex(x => x._id == data._id)].option.reverse = data.reverse
-        socket.broadcast.to(getThisRoomName(socket)).emit('reverse', data)
+        var currentRoomIndex = getThisRoomIndex()
+        if (currentRoomIndex != -1) {
+
+            TableList[currentRoomIndex].tableState[TableList[currentRoomIndex].tableState.findIndex(x => x._id == data._id)].option.reverse = data.reverse
+            socket.broadcast.to(getThisRoomName(socket)).emit('reverse', data)
+        }
     })
-    socket.on('changeProp',data=>{
+    socket.on('changeProp', data => {
         changeTableState(data)
         socket.broadcast.to(getThisRoomName(socket)).emit('changeProp', data)
     })
-    socket.on('removeProp',data=>{
-        TableList[getThisRoomIndex()].tableState.splice(TableList[getThisRoomIndex()].tableState.findIndex(x => x._id == data._id), 1)
-        socket.broadcast.to(getThisRoomName(socket)).emit('removeProp', data)
+    socket.on('removeProp', data => {
+        var currentRoomIndex = getThisRoomIndex()
+        if (currentRoomIndex != -1) {
+
+            TableList[currentRoomIndex].tableState.splice(TableList[currentRoomIndex].tableState.findIndex(x => x._id == data._id), 1)
+            socket.broadcast.to(getThisRoomName(socket)).emit('removeProp', data)
+        }
     })
-    socket.on('createPropToServer',data=>{
-        TableManager.getRequestProp(data.primalName)
-        .then(propOriginal=>{
-            propOriginal._id = data._id
-            propOriginal.x = data.x || propOriginal.x
-            propOriginal.y = data.y || propOriginal.y
-            TableList[getThisRoomIndex()].tableState.push(propOriginal)
-            if (chkToMulti(propOriginal)) {
-                io.sockets.to(getThisRoomName(socket)).emit('createProps', propOriginal)
-            }
-            else {
-                io.sockets.to(getThisRoomName(socket)).emit('createProp', propOriginal)
-            }
-        })
-        .catch(err =>{
-            console.log("NO DATA")
-        })
+    socket.on('createPropToServer', data => {
+        var currentRoomIndex = getThisRoomIndex()
+
+        if (currentRoomIndex != -1) {
+
+            TableManager.getRequestProp(data.primalName)
+                .then(propOriginal => {
+                    propOriginal._id = data._id
+                    propOriginal.x = data.x || propOriginal.x
+                    propOriginal.y = data.y || propOriginal.y
+                    TableList[currentRoomIndex].tableState.push(propOriginal)
+                    if (chkToMulti(propOriginal)) {
+                        io.sockets.to(getThisRoomName(socket)).emit('createProps', propOriginal)
+                    }
+                    else {
+                        io.sockets.to(getThisRoomName(socket)).emit('createProp', propOriginal)
+                    }
+                })
+                .catch(err => {
+                    console.log("NO DATA")
+                })
+        }
     })
     socket.on('disconnect', data => {
-        TableList.forEach(x=>{
+        TableList.forEach(x => {
             x.userList.delete(socket.id)
         })
     })
