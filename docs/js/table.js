@@ -8,8 +8,6 @@ class MoveAbleProp {
         this.x = x || 0
         this.y = y || 0
 
-        this.option.zIndex = 0
-
         this.active = false
 
         this.table = table
@@ -55,7 +53,7 @@ class MoveAbleProp {
             height: option.height || 300,
             reverse: option.reverse || false,
             static: option.static || false,
-            zIndex: option.zIndex || 0,
+            zIndex: option.zIndex || 1000,
             front: option.front || {
                 image: './assets/cards/back.png'
             },
@@ -299,14 +297,17 @@ class Props extends MoveAbleProp {
     }
     unfoldStack() {
         var len = this.option.stack.length
+        this.option.stack.reverse()
         for (let i = 0; i < len; i++) {
             this.popProp(0, this.x + i * 20, this.y)
         }
+        this.removeThis()
     }
     reverseAll() {
         this.option.stack.forEach(x => {
             x.reverse = !x.reverse
         })
+        this.option.stack.reverse()
         this.setState()
         this.changeProp()
     }

@@ -88,7 +88,13 @@ io.on('connection', (socket) => {
         }
     })
     socket.on('decreaseZindexAll', data => {
-        io.sockets.to(getThisRoomName(socket)).emit('decreaseZindexAll', data)
+        var currentRoomIndex = getThisRoomIndex()
+        if (currentRoomIndex != -1) {
+            TableList[currentRoomIndex].tableState.forEach(x=>{
+                if(x.option.zIndex > 0) x.option.zIndex--
+            })
+            io.sockets.to(getThisRoomName(socket)).emit('decreaseZindexAll', data)
+        }
     })
     socket.on('createProp', data => {
         var currentRoomIndex = getThisRoomIndex()
