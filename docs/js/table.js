@@ -24,7 +24,7 @@ class MoveAbleProp {
                 onClick: () => { this.removeThis() }
             },
             {
-                text: `고정 ON/OFF`,
+                text: () => "고정 " + (this.isStatic() ? "OFF" : "ON"),
                 color: "blue",
                 onClick: () => { this.toggleStatic() }
             },
@@ -274,7 +274,7 @@ class Props extends MoveAbleProp {
         this.prop.innerText = ` x${this.option.stack.length}`
         this.prop.style.borderRadius = con.style.borderRadius + "px"
     }
-    popProp(isAttach,x, y) {
+    popProp(isAttach, x, y) {
         var data = this.option.stack.pop()
         data.isAttach = isAttach || 0;
         this.table.createProp(data, x || this.x, y || this.y)
@@ -300,7 +300,7 @@ class Props extends MoveAbleProp {
     unfoldStack() {
         var len = this.option.stack.length
         for (let i = 0; i < len; i++) {
-            this.popProp(0,this.x + i * 20, this.y)
+            this.popProp(0, this.x + i * 20, this.y)
         }
     }
     reverseAll() {
@@ -311,7 +311,7 @@ class Props extends MoveAbleProp {
         this.changeProp()
     }
     chkStack() {
-        if (this.option.stack.length <= 1){
+        if (this.option.stack.length <= 1) {
             this.popProp()
             this.removeThis()
         }
@@ -414,10 +414,18 @@ class TableTop {
             x.decreaseZindex()
         })
     }
-    createProp(option, x, y) {
-        socket.emit('createProp', {option, x, y, isAttach: option.isAttach })
+    autoCreate(data, x, y) {
+        if (data.isProps) {
+            this.createProps(data.option, data.count, x || this.cursorX, y || this.cursorY)
+        }
+        else {
+            this.createProp(data.option, x || this.cursorX, y || this.cursorY)
+        }
     }
-    createPropToClient(_id,option, x, y) {
+    createProp(option, x, y) {
+        socket.emit('createProp', { option, x, y, isAttach: option.isAttach })
+    }
+    createPropToClient(_id, option, x, y) {
         var prop = new Prop(this, _id, option, x, y)
         this.appendTable(prop.getElement())
         return prop
@@ -425,7 +433,7 @@ class TableTop {
     createProps(option, count, x, y) {
         socket.emit('createProps', { option, count, x, y })
     }
-    createPropsToClient(_id,option, count, x, y) {
+    createPropsToClient(_id, option, count, x, y) {
         var prop = new Props(this, _id, option, count, x, y)
         this.appendTable(prop.getElement())
         return prop
@@ -446,17 +454,19 @@ class TableTop {
         if (!this.isContextMenu) {
             var target = t.controller
             this.isContextMenu = true
+            var contextMenuX = this.cursorX
+            var contextMenuY = this.cursorY
             var contextmenu = document.createElement('div')
             contextmenu.classList.add('contextMenu')
-            contextmenu.style.top = this.cursorY + "px"
-            contextmenu.style.left = this.cursorX + "px"
+            contextmenu.style.top = contextMenuY + "px"
+            contextmenu.style.left = contextMenuX + "px"
 
             target.getContextMenu().forEach(x => {
                 var content = document.createElement('p')
-                content.innerText = x.text
+                content.innerText = (x.text instanceof Function ? x.text() : x.text)
                 content.style.color = x.color
                 content.addEventListener('mousedown', (e) => {
-                    x.onClick()
+                    x.onClick(contextMenuX, contextMenuY)
                     this.closeContextMenu()
                 })
                 contextmenu.appendChild(content)
@@ -494,10 +504,10 @@ class TableTop {
             this.decreaseZindexAll()
         })
         socket.on('createProp', data => {
-            table.createPropToClient(data._id,data.option, data.x, data.y)
+            table.createPropToClient(data._id, data.option, data.x, data.y)
         })
         socket.on('createProps', data => {
-            table.createPropsToClient(data._id,data.option, data.count || null, data.x, data.y)
+            table.createPropsToClient(data._id, data.option, data.count || null, data.x, data.y)
         })
         socket.on('reverse', data => {
             var target = getTarget(data._id)
@@ -526,7 +536,7 @@ class TableTop {
                     {
                         text: `생성 : ${x.primalName}`,
                         color: "green",
-                        onClick: () => { x.isProps ? this.createProps(x.option, x.count, x.x, x.y) : this.createProps(x.option, x.x, x.y) }
+                        onClick: (cx, cy) => { this.autoCreate(x, cx, cy) }
                     }
                 )
             })

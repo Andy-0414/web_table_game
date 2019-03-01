@@ -1,7 +1,7 @@
 const fs = require('fs')
 
 function chkToMulti(x) {
-    return x.count || (x.option ? x.option.stack : false)
+    return !(!(x.count || (x.option ? x.option.stack : false)))
 }
 
 module.exports = {
