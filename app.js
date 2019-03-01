@@ -20,12 +20,14 @@ var TableList = [
         roomName: "Hello",
         userList: new Set(),
         currentId: 0,
+        cursorList : [],
         tableState: []
     },
     {
         roomName: "World!",
         userList: new Set(),
         currentId: 0,
+        cursorList: [],
         tableState: []
     },
 ]
@@ -136,7 +138,9 @@ io.on('connection', (socket) => {
     socket.on('disconnect', data => {
         TableList.forEach(x => {
             x.userList.delete(socket.id)
+            x.cursorList.splice(x.cursorList.findIndex(y => y.id == socket.id),1)
         })
+        sendRoomList()
     })
 });
 
