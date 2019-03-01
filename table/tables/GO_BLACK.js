@@ -1,5 +1,5 @@
 module.exports = {
-    primalName: "GO_WHITE",
+    primalName: "GO_BLACK",
     getData(count = 100) {
         return {
             option: {
