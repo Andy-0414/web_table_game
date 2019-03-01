@@ -87,7 +87,7 @@ body{
 #roomList{
     position: fixed;
 
-    display: none;
+    display: flex;
     justify-content: center;
     align-items: center;
 

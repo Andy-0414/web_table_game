@@ -1,6 +1,5 @@
 
 var socket = io();
-
 class MoveAbleProp {
     constructor(table, id, option, x, y) {
         this.optionSetting(option)
