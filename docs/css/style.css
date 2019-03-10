@@ -99,7 +99,7 @@ body{
     width: 100vw;
     height: 100vh;
 
-    background-color: #00000099;
+    background-color: #000000AA;
     z-index: 5000;
 }
 #roomList ul{
@@ -107,10 +107,6 @@ body{
     height: 600px;
 
     background: white;
-
-    border-radius: 10px;
-
-    box-shadow: 0px 0px 10px 1px black;
 
     overflow: hidden;
 }
